@@ -196,3 +196,6 @@ test-output
 
 # Prisma generated client
 apps/api/src/prisma/client/
+
+# Docker volumes (local persisted data)
+docker/volumes/*

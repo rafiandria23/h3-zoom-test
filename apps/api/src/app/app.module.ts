@@ -12,6 +12,7 @@ import {
 } from './app.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ItemsProcessor } from './app.processor';
 
 @Module({
   imports: [
@@ -40,6 +41,6 @@ import { AppService } from './app.service';
     EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ItemsProcessor],
 })
 export class AppModule {}

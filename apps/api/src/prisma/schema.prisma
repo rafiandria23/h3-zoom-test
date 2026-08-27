@@ -13,16 +13,17 @@ datasource db {
   provider = "postgresql"
 }
 
+// Member names are camelCase (runtime/TS); @map stores snake_case in Postgres.
 enum ContentType {
   text
-  longText
+  longText @map("long_text")
   numeric
   file
 }
 
 enum EventType {
-  item_submitted
-  item_processed
+  itemSubmitted  @map("item_submitted")
+  itemProcessed  @map("item_processed")
 }
 
 model Item {

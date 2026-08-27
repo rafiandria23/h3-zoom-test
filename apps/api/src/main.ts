@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -7,6 +7,7 @@ import {
 } from '@nestjs/platform-fastify';
 
 import { AppModule } from './app/app.module';
+import { CaseConversionInterceptor } from './app/app.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -15,6 +16,17 @@ async function bootstrap() {
   );
 
   const configService = app.get(ConfigService);
+
+  // snake_case wire contract <-> camelCase runtime: keys are converted here,
+  // enum values via @Transform on the DTOs.
+  app.useGlobalInterceptors(new CaseConversionInterceptor());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidUnknownValues: true,
+    }),
+  );
 
   app.setGlobalPrefix('/api/v1');
   app.enableCors({

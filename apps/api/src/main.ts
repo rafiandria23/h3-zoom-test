@@ -1,21 +1,33 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
   );
+
+  const configService = app.get(ConfigService);
+
+  app.setGlobalPrefix('/api/v1');
+  app.enableCors({
+    origin: configService.get<string>('api.webUrl'),
+    methods: ['HEAD', 'GET', 'POST'],
+  });
+
+  const apiHost = configService.get<string>('api.host') as string;
+  const apiPort = configService.get<number>('api.port') as number;
+
+  await app.listen(apiPort, apiHost);
+
+  Logger.log(`🚀 H3 Zoom Test API is running on: http://${apiHost}:${apiPort}`);
 }
 
 bootstrap();

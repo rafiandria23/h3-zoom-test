@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import { ContentType } from '../../prisma/client/enums';
+import { ContentType } from '../../generated/prisma/enums';
 
 export class SubmitItemDto {
   @IsEnum(ContentType)

@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 
-import { CommonService } from '../common';
+import { CommonService } from '../modules/common';
 
 import { AppService } from './app.service';
 

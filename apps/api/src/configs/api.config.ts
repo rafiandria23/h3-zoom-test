@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { registerAs } from '@nestjs/config';
 
-import { RADIX } from '../common/common.constant';
+import { RADIX } from '../modules/common/common.constant';
 
 export const apiConfig = registerAs('api', () => {
   const host = _.get(process, 'env.API_HOST', '127.0.0.1');

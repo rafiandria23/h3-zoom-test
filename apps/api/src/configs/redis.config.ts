@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { registerAs } from '@nestjs/config';
 
-import { RADIX } from '../common/common.constant';
+import { RADIX } from '../modules/common/common.constant';
 
 export const redisConfig = registerAs('redis', () => {
   const host = _.get(process, 'env.REDIS_HOST', '127.0.0.1');

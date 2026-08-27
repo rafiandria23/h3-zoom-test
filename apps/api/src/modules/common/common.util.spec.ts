@@ -3,7 +3,7 @@ import path from 'node:path';
 import { resolveEnvFilePaths, validateEnv } from './common.util';
 
 describe('resolveEnvFilePaths', () => {
-  const root = path.resolve(__dirname, '..', '..', '..', '..');
+  const root = path.resolve(__dirname, '..', '..', '..', '..', '..');
 
   it('builds the development cascade by default', () => {
     expect(resolveEnvFilePaths(__dirname, 'development')).toEqual([

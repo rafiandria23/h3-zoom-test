@@ -5,24 +5,24 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { CommonService } from '../../common';
-import { EventType } from '../../prisma/client/enums';
-import type { Item } from '../../prisma/client/client';
-import { PrismaService } from '../prisma/prisma.service';
+import { CommonService } from '../common';
+import { EventType } from '../../generated/prisma/enums';
+import type { Item } from '../../generated/prisma/client';
+import { DatabaseService } from '../database/database.service';
 
 import { CreateItemInput } from './item.dto';
 
 @Injectable()
 export class ItemService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly db: DatabaseService,
     @InjectQueue('items') private readonly itemsQueue: Queue,
     private readonly eventEmitter: EventEmitter2,
     private readonly commonService: CommonService,
   ) {}
 
   public async submitItem(input: CreateItemInput) {
-    const item = await this.prisma.$transaction(async (tx) => {
+    const item = await this.db.$transaction(async (tx) => {
       const created = await tx.item.create({
         data: {
           content_type: input.content_type,
@@ -50,7 +50,7 @@ export class ItemService {
   }
 
   public async listItems() {
-    const items = await this.prisma.item.findMany({
+    const items = await this.db.item.findMany({
       where: { deleted_at: null },
       orderBy: { created_at: 'asc' },
       include: { events: true },
@@ -100,13 +100,13 @@ export class ItemService {
   }
 
   public async processItem(itemId: string) {
-    const item = await this.prisma.item.findUniqueOrThrow({
+    const item = await this.db.item.findUniqueOrThrow({
       where: { id: itemId },
     });
 
     const { score } = await this.scoreItem(item);
 
-    await this.prisma.event.create({
+    await this.db.event.create({
       data: {
         item_id: item.id,
         type: EventType.item_processed,

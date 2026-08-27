@@ -2,7 +2,7 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-import { PrismaClient } from '../../prisma/client/client';
+import { PrismaClient } from '../../generated/prisma/client';
 
 // Prisma 7's generated client ships no query engine, so a driver adapter is
 // required. Built here as a free function because `super()` must be the first
@@ -22,7 +22,7 @@ function createPrismaAdapter(config: ConfigService): PrismaPg {
 }
 
 @Injectable()
-export class PrismaService
+export class DatabaseService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {

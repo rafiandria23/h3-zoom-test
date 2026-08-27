@@ -4,11 +4,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
-import { CommonModule, envFilePaths, validateEnv } from '../common';
+import { CommonModule, envFilePaths, validateEnv } from '../modules/common';
 import { apiConfig, dbConfig, redisConfig } from '../configs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaModule } from '../modules/prisma/prisma.module';
+import { DatabaseModule } from '../modules/database/database.module';
 import { ItemModule } from '../modules/item/item.module';
 
 @Module({
@@ -37,7 +37,7 @@ import { ItemModule } from '../modules/item/item.module';
     EventEmitterModule.forRoot(),
 
     CommonModule,
-    PrismaModule,
+    DatabaseModule,
     ItemModule,
   ],
   controllers: [AppController],

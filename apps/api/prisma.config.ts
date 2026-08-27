@@ -63,11 +63,11 @@ const url =
   `@${env('DB_HOST')}:${port}/${encodeURIComponent(env('DB_NAME'))}?schema=public`;
 
 export default defineConfig({
-  schema: path.join('src', 'prisma', 'schema.prisma'),
+  schema: path.join('prisma', 'schema.prisma'),
   datasource: {
     url,
   },
   migrations: {
-    path: path.join('src', 'prisma', 'migrations'),
+    path: path.join('prisma', 'migrations'),
   },
 });

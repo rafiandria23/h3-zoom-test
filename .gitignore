@@ -195,7 +195,7 @@ vite.config.ts.timestamp-*
 test-output
 
 # Prisma generated client
-apps/api/src/prisma/client/
+apps/api/src/generated/
 
 # Docker volumes (local persisted data)
 docker/volumes/*

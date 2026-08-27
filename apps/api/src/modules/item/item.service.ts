@@ -1,0 +1,119 @@
+import { randomInt } from 'node:crypto';
+
+import { Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import { CommonService } from '../../common';
+import { EventType } from '../../prisma/client/enums';
+import type { Item } from '../../prisma/client/client';
+import { PrismaService } from '../prisma/prisma.service';
+
+import { CreateItemInput } from './item.dto';
+
+@Injectable()
+export class ItemService {
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue('items') private readonly itemsQueue: Queue,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly commonService: CommonService,
+  ) {}
+
+  public async submitItem(input: CreateItemInput) {
+    const item = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.item.create({
+        data: {
+          content_type: input.content_type,
+          label: input.label,
+          value: input.value,
+          file_ref: input.file_ref,
+          mime_type: input.mime_type,
+          size: input.size,
+        },
+      });
+
+      await tx.event.create({
+        data: {
+          item_id: created.id,
+          type: EventType.item_submitted,
+        },
+      });
+
+      return created;
+    });
+
+    await this.itemsQueue.add('process', { itemId: item.id });
+
+    return this.commonService.successTimestamp({ data: item });
+  }
+
+  public async listItems() {
+    const items = await this.prisma.item.findMany({
+      where: { deleted_at: null },
+      orderBy: { created_at: 'asc' },
+      include: { events: true },
+    });
+
+    const data = items.map((item) => {
+      const processed = item.events.find(
+        (e) => e.type === EventType.item_processed,
+      );
+
+      return {
+        id: item.id,
+        content_type: item.content_type,
+        label: item.label,
+        value: item.value,
+        file_ref: item.file_ref,
+        mime_type: item.mime_type,
+        size: item.size,
+        created_at: item.created_at,
+        status: processed ? 'done' : 'pending',
+        result: processed?.payload ?? null,
+      };
+    });
+
+    return this.commonService.successTimestamp({
+      metadata: { count: data.length },
+      data,
+    });
+  }
+
+  private async scoreItem(item: Item): Promise<{ score: number }> {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Fold a few item fields into a stable seed so the score is influenced by
+    // the item itself, with crypto-grade random jitter layered on top.
+    const seed = `${item.id}:${JSON.stringify(item.value) ?? 'null'}:${item.size ?? 0}`;
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = Math.trunc(hash * 31 + (seed.codePointAt(i) ?? 0)) % 2_147_483_647;
+    }
+
+    const itemFactor = Math.abs(hash % 1000) / 1000; // 0..1 derived from the item
+    const noise = randomInt(0, 1000) / 1000; // 0..1 jitter
+    const score = Math.round((itemFactor * 0.6 + noise * 0.4) * 100);
+
+    return { score };
+  }
+
+  public async processItem(itemId: string) {
+    const item = await this.prisma.item.findUniqueOrThrow({
+      where: { id: itemId },
+    });
+
+    const { score } = await this.scoreItem(item);
+
+    await this.prisma.event.create({
+      data: {
+        item_id: item.id,
+        type: EventType.item_processed,
+        payload: { score },
+      },
+    });
+
+    this.eventEmitter.emit('item.processed', { itemId: item.id, score });
+  }
+}

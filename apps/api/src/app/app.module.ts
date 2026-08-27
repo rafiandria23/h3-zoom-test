@@ -4,16 +4,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
-import {
-  apiConfig,
-  dbConfig,
-  envFilePaths,
-  redisConfig,
-  validate,
-} from './app.config';
+import { CommonModule, envFilePaths, validateEnv } from '../common';
+import { apiConfig, dbConfig, redisConfig } from '../configs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ItemsProcessor } from './app.processor';
+import { PrismaModule } from '../modules/prisma/prisma.module';
+import { ItemModule } from '../modules/item/item.module';
 
 @Module({
   imports: [
@@ -23,7 +19,7 @@ import { ItemsProcessor } from './app.processor';
       expandVariables: true,
       envFilePath: envFilePaths,
       load: [apiConfig, dbConfig, redisConfig],
-      validate,
+      validate: validateEnv,
     }),
 
     BullModule.forRootAsync({
@@ -37,9 +33,12 @@ import { ItemsProcessor } from './app.processor';
         },
       }),
     }),
-    BullModule.registerQueue({ name: 'items' }),
 
     EventEmitterModule.forRoot(),
+
+    CommonModule,
+    PrismaModule,
+    ItemModule,
   ],
   controllers: [AppController],
   providers: [
@@ -52,7 +51,6 @@ import { ItemsProcessor } from './app.processor';
       }),
     },
     AppService,
-    ItemsProcessor,
   ],
 })
 export class AppModule {}

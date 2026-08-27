@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { resolveEnvFilePaths, validate } from './app.config';
+import { resolveEnvFilePaths, validateEnv } from './common.util';
 
 describe('resolveEnvFilePaths', () => {
   const root = path.resolve(__dirname, '..', '..', '..', '..');
@@ -43,10 +43,10 @@ describe('resolveEnvFilePaths', () => {
   });
 });
 
-describe('validate', () => {
+describe('validateEnv', () => {
   it('passes for a well-formed environment', () => {
     expect(() =>
-      validate({
+      validateEnv({
         NODE_ENV: 'development',
         LOG_LEVEL: 'info',
         API_PORT: '3000',
@@ -58,29 +58,29 @@ describe('validate', () => {
   });
 
   it('passes for an empty environment (factories supply defaults)', () => {
-    expect(() => validate({})).not.toThrow();
+    expect(() => validateEnv({})).not.toThrow();
   });
 
   it('coerces numeric strings to numbers', () => {
-    const result = validate({ DB_PORT: '5432' });
+    const result = validateEnv({ DB_PORT: '5432' });
 
     expect(result.DB_PORT).toBe(5432);
   });
 
   it('rejects an unknown NODE_ENV', () => {
-    expect(() => validate({ NODE_ENV: 'prod' })).toThrow(
+    expect(() => validateEnv({ NODE_ENV: 'prod' })).toThrow(
       /Invalid environment variables/,
     );
   });
 
   it('rejects an out-of-range port', () => {
-    expect(() => validate({ DB_PORT: '99999' })).toThrow(
+    expect(() => validateEnv({ DB_PORT: '99999' })).toThrow(
       /Invalid environment variables/,
     );
   });
 
   it('rejects a non-numeric port', () => {
-    expect(() => validate({ API_PORT: 'abc' })).toThrow(
+    expect(() => validateEnv({ API_PORT: 'abc' })).toThrow(
       /Invalid environment variables/,
     );
   });

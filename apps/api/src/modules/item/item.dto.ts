@@ -1,5 +1,6 @@
 import {
   IsEnum,
+  IsInt,
   IsString,
   IsNotEmpty,
   IsOptional,
@@ -9,7 +10,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import { ContentType } from '../prisma/client/enums';
+import { ContentType } from '../../prisma/client/enums';
 
 export class SubmitItemDto {
   @IsEnum(ContentType)
@@ -23,13 +24,23 @@ export class SubmitItemDto {
   @Type(() => Number)
   @IsValidValueForContentType()
   value?: string | number;
-}
 
-export interface CreateItemInput extends SubmitItemDto {
+  // Populated by the MultipartInterceptor for `multipart/form-data` submissions.
+  @IsOptional()
+  @IsString()
   file_ref?: string;
+
+  @IsOptional()
+  @IsString()
   mime_type?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
   size?: number;
 }
+
+export type CreateItemInput = SubmitItemDto;
 
 export function IsValidValueForContentType(options?: ValidationOptions) {
   return function (object: object, propertyName: string) {

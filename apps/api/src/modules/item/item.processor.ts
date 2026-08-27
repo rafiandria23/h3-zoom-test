@@ -1,5 +1,5 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
+import type { Job } from 'bullmq';
 
 import { ItemService } from './item.service';
 

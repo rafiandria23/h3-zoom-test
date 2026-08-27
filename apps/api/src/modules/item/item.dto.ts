@@ -5,8 +5,8 @@ import {
   IsNotEmpty,
   IsOptional,
   registerDecorator,
-  ValidationOptions,
-  ValidationArguments,
+  type ValidationOptions,
+  type ValidationArguments,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 

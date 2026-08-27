@@ -1,11 +1,11 @@
 import {
-  CallHandler,
-  ExecutionContext,
+  type CallHandler,
+  type ExecutionContext,
   Injectable,
-  NestInterceptor,
+  type NestInterceptor,
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 
 import { FileService } from './file.service';
 

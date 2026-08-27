@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { CommonService, SuccessTimestampDto } from '../modules/common';
+import { CommonService, type SuccessTimestampDto } from '../modules/common';
 
 @Injectable()
 export class AppService {

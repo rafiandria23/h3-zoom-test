@@ -10,7 +10,7 @@ import { EventType } from '../../generated/prisma/enums';
 import type { Item } from '../../generated/prisma/client';
 import { DatabaseService } from '../database/database.service';
 
-import { CreateItemInput } from './item.dto';
+import type { CreateItemInput } from './item.dto';
 
 @Injectable()
 export class ItemService {

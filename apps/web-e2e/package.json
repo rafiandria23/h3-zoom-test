@@ -1,0 +1,10 @@
+{
+  "name": "@rafiandria23/h3-zoom-test-web-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@rafiandria23/h3-zoom-test-web"
+    ]
+  }
+}

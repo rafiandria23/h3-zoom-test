@@ -199,3 +199,6 @@ apps/api/src/prisma/client/
 
 # Docker volumes (local persisted data)
 docker/volumes/*
+
+# Multipart upload destination (MultipartInterceptor writes here)
+uploads/

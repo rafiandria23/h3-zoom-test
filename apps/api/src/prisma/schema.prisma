@@ -13,48 +13,47 @@ datasource db {
   provider = "postgresql"
 }
 
-// Member names are camelCase (runtime/TS); @map stores snake_case in Postgres.
 enum ContentType {
   text
-  longText @map("long_text")
+  long_text
   numeric
   file
 }
 
 enum EventType {
-  itemSubmitted  @map("item_submitted")
-  itemProcessed  @map("item_processed")
+  item_submitted
+  item_processed
 }
 
 model Item {
-  id          String      @id @default(uuid())
-  contentType ContentType @map("content_type")
-  label       String
-  value       Json?
-  fileRef     String?     @map("file_ref")
-  mimeType    String?     @map("mime_type")
-  size        Int?
+  id           String      @id @default(uuid())
+  content_type ContentType
+  label        String
+  value        Json?
+  file_ref     String?
+  mime_type    String?
+  size         Int?
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
 
   events Event[]
 
-  @@index([createdAt])
+  @@index([created_at])
   @@map("items")
 }
 
 model Event {
-  id         String    @id @default(uuid())
-  type       EventType
-  payload    Json?
-  occurredAt DateTime  @default(now()) @map("occurred_at")
+  id          String    @id @default(uuid())
+  type        EventType
+  payload     Json?
+  occurred_at DateTime  @default(now())
 
-  itemId String @map("item_id")
-  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  item_id String
+  item    Item   @relation(fields: [item_id], references: [id], onDelete: Cascade)
 
-  @@index([itemId])
-  @@index([itemId, type])
+  @@index([item_id])
+  @@index([item_id, type])
   @@map("events")
 }

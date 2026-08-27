@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
+import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -41,6 +42,17 @@ import { ItemsProcessor } from './app.processor';
     EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService, ItemsProcessor],
+  providers: [
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidUnknownValues: true,
+      }),
+    },
+    AppService,
+    ItemsProcessor,
+  ],
 })
 export class AppModule {}

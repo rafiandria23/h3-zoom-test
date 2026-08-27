@@ -7,17 +7,13 @@ import {
   ValidationOptions,
   ValidationArguments,
 } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
-import { camelCase } from 'lodash';
+import { Type } from 'class-transformer';
 
 import { ContentType } from '../prisma/client/enums';
 
 export class SubmitItemDto {
   @IsEnum(ContentType)
-  @Transform(({ value }) =>
-    typeof value === 'string' ? camelCase(value) : value,
-  )
-  contentType!: ContentType;
+  content_type!: ContentType;
 
   @IsString()
   @IsNotEmpty()
@@ -30,8 +26,8 @@ export class SubmitItemDto {
 }
 
 export interface CreateItemInput extends SubmitItemDto {
-  fileRef?: string;
-  mimeType?: string;
+  file_ref?: string;
+  mime_type?: string;
   size?: number;
 }
 
@@ -44,25 +40,25 @@ export function IsValidValueForContentType(options?: ValidationOptions) {
       options,
       validator: {
         validate(value: unknown, args: ValidationArguments) {
-          const { contentType } = args.object as SubmitItemDto;
+          const { content_type } = args.object as SubmitItemDto;
 
           if (
-            contentType === ContentType.text ||
-            contentType === ContentType.longText
+            content_type === ContentType.text ||
+            content_type === ContentType.long_text
           ) {
             return typeof value === 'string' && value.trim().length > 0;
           }
 
-          if (contentType === ContentType.numeric) {
+          if (content_type === ContentType.numeric) {
             return typeof value === 'number' && !Number.isNaN(value);
           }
 
           return true;
         },
         defaultMessage(args: ValidationArguments) {
-          const { contentType } = args.object as SubmitItemDto;
+          const { content_type } = args.object as SubmitItemDto;
 
-          return `value is invalid for contentType "${contentType}"`;
+          return `value is invalid for content_type "${content_type}"`;
         },
       },
     });

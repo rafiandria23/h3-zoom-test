@@ -1,3 +1,9 @@
+import { randomUUID } from 'node:crypto';
+import { createWriteStream } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import { pipeline } from 'node:stream/promises';
+
 import {
   CallHandler,
   ExecutionContext,
@@ -6,31 +12,68 @@ import {
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
-import { keysToCamel, keysToSnake } from './app.util';
+const UPLOAD_DIR = join(process.cwd(), 'uploads');
 
 /**
- * Bridges the snake_case wire contract to the camelCase runtime.
+ * Streams a `multipart/form-data` submission to disk and rebuilds `request.body`
+ * as a plain object: text fields verbatim (the wire contract is snake_case, so
+ * keys are not rewritten) plus `file_ref` / `mime_type` / `size` for the
+ * uploaded file. Non-multipart requests pass straight through.
  *
- * The pre-handler phase runs before pipes, so request keys are camelCased
- * before `ValidationPipe` binds them to DTOs; response keys are snake_cased
- * on the way out. Only plain-object keys are touched — enum *values* are
- * field-scoped and handled with `@Transform` on the DTOs.
+ * No mimetype allowlist and no file size limit are enforced here or in the
+ * `@fastify/multipart` registration.
  */
 @Injectable()
-export class CaseConversionInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+export class MultipartInterceptor implements NestInterceptor {
+  private uploadDirReady?: Promise<string>;
+
+  private ensureUploadDir(): Promise<string> {
+    this.uploadDirReady ??= mkdir(UPLOAD_DIR, { recursive: true }).then(
+      () => UPLOAD_DIR,
+    );
+
+    return this.uploadDirReady;
+  }
+
+  async intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
+    const contentType = request.headers['content-type'] ?? '';
 
-    if (request.body && typeof request.body === 'object') {
-      request.body = keysToCamel(request.body);
+    if (!contentType.includes('multipart/form-data')) {
+      return next.handle();
     }
 
-    if (request.query && typeof request.query === 'object') {
-      (request as { query: unknown }).query = keysToCamel(request.query);
+    const fields: Record<string, unknown> = {};
+    let fileRef: string | undefined;
+    let mimeType: string | undefined;
+    let size: number | undefined;
+
+    for await (const part of request.parts()) {
+      if (part.type === 'file') {
+        const filename = `${randomUUID()}-${part.filename}`;
+        const uploadDir = await this.ensureUploadDir();
+
+        await pipeline(part.file, createWriteStream(join(uploadDir, filename)));
+
+        fileRef = filename;
+        mimeType = part.mimetype;
+        size = part.file.bytesRead;
+      } else {
+        fields[part.fieldname] = part.value;
+      }
     }
 
-    return next.handle().pipe(map((data) => keysToSnake(data)));
+    request.body = {
+      ...fields,
+      file_ref: fileRef,
+      mime_type: mimeType,
+      size,
+    };
+
+    return next.handle();
   }
 }

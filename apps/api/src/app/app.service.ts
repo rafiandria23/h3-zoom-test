@@ -55,19 +55,19 @@ export class AppService
     const item = await this.$transaction(async (tx) => {
       const created = await tx.item.create({
         data: {
-          contentType: input.contentType,
+          content_type: input.content_type,
           label: input.label,
           value: input.value,
-          fileRef: input.fileRef,
-          mimeType: input.mimeType,
+          file_ref: input.file_ref,
+          mime_type: input.mime_type,
           size: input.size,
         },
       });
 
       await tx.event.create({
         data: {
-          itemId: created.id,
-          type: EventType.itemSubmitted,
+          item_id: created.id,
+          type: EventType.item_submitted,
         },
       });
 
@@ -81,25 +81,25 @@ export class AppService
 
   public async listItems() {
     const items = await this.item.findMany({
-      where: { deletedAt: null },
-      orderBy: { createdAt: 'asc' },
+      where: { deleted_at: null },
+      orderBy: { created_at: 'asc' },
       include: { events: true },
     });
 
     return items.map((item) => {
       const processed = item.events.find(
-        (e) => e.type === EventType.itemProcessed,
+        (e) => e.type === EventType.item_processed,
       );
 
       return {
         id: item.id,
-        contentType: item.contentType,
+        content_type: item.content_type,
         label: item.label,
         value: item.value,
-        fileRef: item.fileRef,
-        mimeType: item.mimeType,
+        file_ref: item.file_ref,
+        mime_type: item.mime_type,
         size: item.size,
-        createdAt: item.createdAt,
+        created_at: item.created_at,
         status: processed ? 'done' : 'pending',
         result: processed?.payload ?? null,
       };
@@ -131,8 +131,8 @@ export class AppService
 
     await this.event.create({
       data: {
-        itemId: item.id,
-        type: EventType.itemProcessed,
+        item_id: item.id,
+        type: EventType.item_processed,
         payload: { score },
       },
     });

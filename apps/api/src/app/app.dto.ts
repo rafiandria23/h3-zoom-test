@@ -1,4 +1,3 @@
-import { ContentType } from '../prisma/client/enums';
 import {
   IsEnum,
   IsString,
@@ -10,6 +9,8 @@ import {
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { camelCase } from 'lodash';
+
+import { ContentType } from '../prisma/client/enums';
 
 export class SubmitItemDto {
   @IsEnum(ContentType)

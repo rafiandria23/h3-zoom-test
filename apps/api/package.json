@@ -4,6 +4,13 @@
   "private": true,
   "nx": {
     "targets": {
+      "prisma": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "prisma",
+          "cwd": "apps/api"
+        }
+      },
       "build": {
         "executor": "nx:run-commands",
         "options": {

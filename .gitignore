@@ -193,3 +193,6 @@ vite.config.ts.timestamp-*
 .vite/
 
 test-output
+
+# Prisma generated client
+apps/api/src/prisma/client/

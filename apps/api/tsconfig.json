@@ -1,7 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
+  },
   "files": [],
-  "include": [],
+  "include": ["prisma.config.ts"],
   "references": [
     {
       "path": "./tsconfig.app.json"

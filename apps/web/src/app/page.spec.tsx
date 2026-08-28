@@ -18,6 +18,12 @@ jest.mock('@rafiandria23/h3-zoom-test-api-client', () => ({
   ]),
 }));
 
+// The SSE hook talks to the store and EventSource; neither is wired up in
+// this page-level render test, and it has its own unit tests.
+jest.mock('@/features/item/hooks/use-item-events', () => ({
+  useItemEvents: jest.fn(() => ({ status: 'live' })),
+}));
+
 import Page from './page';
 
 // jsdom gaps that Radix Themes primitives (Select / ScrollArea) rely on.

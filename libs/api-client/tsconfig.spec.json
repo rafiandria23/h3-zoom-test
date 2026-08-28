@@ -3,7 +3,11 @@
   "compilerOptions": {
     "outDir": "./out-tsc/jest",
     "types": ["jest", "node"],
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    // Match tsconfig.lib.json / how jest (swc) actually resolves these specs,
+    // so extensionless relative imports typecheck the same as the source.
+    "module": "esnext",
+    "moduleResolution": "bundler"
   },
   "include": [
     "jest.config.ts",

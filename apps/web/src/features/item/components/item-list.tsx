@@ -5,15 +5,42 @@ import { useItemControllerListQuery } from '@rafiandria23/h3-zoom-test-api-clien
 
 import { Accordion, type AccordionEntry } from '@/components';
 
+import { useItemEvents, type SseStatus } from '../hooks/use-item-events';
+
 import { ItemDetail } from './item-detail';
 import { ItemStatusBadge } from './item-status-badge';
 
+// Fallback poll interval used whenever the SSE stream isn't `live`.
+const FALLBACK_POLL_MS = 30000;
+
+const STREAM_BADGE: Record<
+  SseStatus,
+  { color: 'green' | 'amber' | 'gray'; label: string }
+> = {
+  live: { color: 'green', label: 'Live' },
+  connecting: { color: 'gray', label: 'Connecting…' },
+  reconnecting: { color: 'amber', label: 'Reconnecting…' },
+  stale: { color: 'gray', label: 'Polling' },
+};
+
+function StreamBadge({ status }: { status: SseStatus }) {
+  const { color, label } = STREAM_BADGE[status];
+  return (
+    <Badge color={color} variant="soft" size="1">
+      {label}
+    </Badge>
+  );
+}
+
 // Item list as an accordion. Each row shows status + full detail, matching
-// `ItemListEntryDto` from apps/api. Polls so `pending` -> `done` flips in
-// place once the worker finishes.
+// `ItemListEntryDto` from apps/api. The SSE stream drives `pending` -> `done`
+// flips in real time; polling only runs as a fallback while the stream is not
+// `live`.
 export function ItemList() {
+  const { status: streamStatus } = useItemEvents();
+
   const { data, isLoading, isError } = useItemControllerListQuery(undefined, {
-    pollingInterval: 3000,
+    pollingInterval: streamStatus === 'live' ? 0 : FALLBACK_POLL_MS,
   });
 
   const items = data?.data ?? [];
@@ -40,6 +67,7 @@ export function ItemList() {
             {items.length}
           </Badge>
         )}
+        <StreamBadge status={streamStatus} />
       </Flex>
 
       {isLoading && (

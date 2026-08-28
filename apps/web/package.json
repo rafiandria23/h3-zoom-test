@@ -4,6 +4,13 @@
   "private": true,
   "nx": {
     "targets": {
+      "build": {
+        "options": {
+          "env": {
+            "NODE_ENV": "production"
+          }
+        }
+      },
       "dev": {
         "options": {
           "args": "-H ${WEB_HOST:-127.0.0.1} -p ${WEB_PORT:-4000}"

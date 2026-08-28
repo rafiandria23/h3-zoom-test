@@ -1,16 +1,8 @@
 import 'reflect-metadata';
 
-import {
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUrl,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
-import { LogLevel, NodeEnv } from './common.constant';
+import { LogLevel, NodeEnv, WebScheme } from './common.constant';
 
 // Default envelope for successful response payloads. `MD` types the `metadata`
 // (pagination, counts, ...); `D` types the primary `data`.
@@ -50,8 +42,18 @@ export class EnvironmentVariables {
   API_PORT?: number;
 
   @IsOptional()
-  @IsUrl({ require_tld: false })
-  WEB_URL?: string;
+  @IsEnum(WebScheme)
+  WEB_SCHEME?: WebScheme;
+
+  @IsOptional()
+  @IsString()
+  WEB_HOST?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  WEB_PORT?: number;
 
   @IsOptional()
   @IsString()

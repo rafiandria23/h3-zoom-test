@@ -11,11 +11,23 @@ export const apiConfig = registerAs('api', () => {
     throw new TypeError('Invalid API_PORT');
   }
 
-  const webUrl = _.get(process, 'env.WEB_URL', 'http://127.0.0.1:4000');
+  const webScheme = _.get(process, 'env.WEB_SCHEME', 'http');
+
+  const webHost = _.get(process, 'env.WEB_HOST', '127.0.0.1');
+
+  const webPort = Number.parseInt(_.get(process, 'env.WEB_PORT', '4000'), RADIX);
+  if (Number.isNaN(webPort)) {
+    throw new TypeError('Invalid WEB_PORT');
+  }
+
+  const webUrl = `${webScheme}://${webHost}:${webPort}`;
 
   return {
     host,
     port,
+    webScheme,
+    webHost,
+    webPort,
     webUrl,
   };
 });

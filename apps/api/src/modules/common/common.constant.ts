@@ -14,6 +14,11 @@ export enum NodeEnv {
   Production = 'production',
 }
 
+export enum WebScheme {
+  Http = 'http',
+  Https = 'https',
+}
+
 export enum LogLevel {
   Trace = 'trace',
   Debug = 'debug',

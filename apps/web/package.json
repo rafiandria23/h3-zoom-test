@@ -2,6 +2,20 @@
   "name": "@rafiandria23/h3-zoom-test-web",
   "version": "0.0.1",
   "private": true,
+  "nx": {
+    "targets": {
+      "dev": {
+        "options": {
+          "command": "next dev -H ${WEB_HOST:-127.0.0.1} -p ${WEB_PORT:-4000}"
+        }
+      },
+      "start": {
+        "options": {
+          "command": "next start -H ${WEB_HOST:-127.0.0.1} -p ${WEB_PORT:-4000}"
+        }
+      }
+    }
+  },
   "dependencies": {
     "next": "~16.1.6",
     "react": "^19.0.0",

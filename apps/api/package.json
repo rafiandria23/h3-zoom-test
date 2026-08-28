@@ -82,6 +82,17 @@
           }
         }
       },
+      "dev": {
+        "continuous": true,
+        "executor": "@nx/js:node",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "@rafiandria23/h3-zoom-test-api:build:development",
+          "runBuildTargetDependencies": false
+        }
+      },
       "test": {
         "options": {
           "passWithNoTests": true

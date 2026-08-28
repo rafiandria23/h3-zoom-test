@@ -2,6 +2,9 @@
   "name": "@rafiandria23/h3-zoom-test-api-e2e",
   "version": "0.0.1",
   "private": true,
+  "devDependencies": {
+    "axios": "^1.6.0"
+  },
   "nx": {
     "implicitDependencies": [
       "@rafiandria23/h3-zoom-test-api"

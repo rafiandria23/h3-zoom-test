@@ -3,7 +3,7 @@ import {
   useItemControllerListQuery,
 } from '@rafiandria23/h3-zoom-test-api-client';
 
-import { makeStore } from '../src/lib/store';
+import { makeStore } from './store';
 
 describe('web redux store', () => {
   it('mounts the api-client reducer and middleware', () => {

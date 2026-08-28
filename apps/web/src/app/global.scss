@@ -1,0 +1,14 @@
+// Radix Themes ships its own reset, typography scale and color system via
+// `@radix-ui/themes/styles.css` (imported in layout.tsx) scoped to the
+// `.radix-themes` root. Keep this file limited to the bare document-level
+// concerns that live outside that root.
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}

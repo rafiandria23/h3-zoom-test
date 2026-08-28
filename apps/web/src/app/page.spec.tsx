@@ -1,0 +1,73 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Theme } from '@radix-ui/themes';
+
+// Stub the generated RTK Query hooks so the page renders without a live store
+// or network. Shapes mirror `ItemControllerList` / `ItemControllerSubmit`.
+const submitTrigger = jest.fn().mockResolvedValue({});
+
+jest.mock('@rafiandria23/h3-zoom-test-api-client', () => ({
+  useItemControllerListQuery: jest.fn(() => ({
+    data: { data: [] },
+    isLoading: false,
+    isError: false,
+  })),
+  useItemControllerSubmitMutation: jest.fn(() => [
+    submitTrigger,
+    { isLoading: false, isSuccess: false, isError: false },
+  ]),
+}));
+
+import Page from './page';
+
+// jsdom gaps that Radix Themes primitives (Select / ScrollArea) rely on.
+beforeAll(() => {
+  class ResizeObserverStub {
+    observe() {
+      /* noop */
+    }
+    unobserve() {
+      /* noop */
+    }
+    disconnect() {
+      /* noop */
+    }
+  }
+  global.ResizeObserver =
+    ResizeObserverStub as unknown as typeof ResizeObserver;
+
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+});
+
+function renderPage() {
+  return render(
+    <Theme>
+      <Page />
+    </Theme>,
+  );
+}
+
+describe('Page', () => {
+  it('should render successfully', () => {
+    const { baseElement } = renderPage();
+    expect(baseElement).toBeTruthy();
+  });
+
+  it('renders both panes of the split view', () => {
+    renderPage();
+    expect(screen.getByText('Create item')).toBeTruthy();
+    expect(screen.getByText('Items')).toBeTruthy();
+  });
+});

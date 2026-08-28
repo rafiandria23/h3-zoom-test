@@ -1,6 +1,6 @@
 import { useDispatch, useSelector, useStore } from 'react-redux';
 
-import type { AppDispatch, AppStore, RootState } from './store';
+import type { AppDispatch, AppStore, RootState } from '@/redux/store';
 
 // Pre-typed versions of the react-redux hooks — use these instead of the
 // plain ones throughout the app.

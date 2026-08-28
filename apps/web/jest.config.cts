@@ -11,6 +11,10 @@ const config = {
     '^(?!.*\\.(js|jsx|ts|tsx|css|json)$)': '@nx/react/plugins/jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  moduleNameMapper: {
+    // Mirror the `@/*` -> `src/*` alias from tsconfig.json.
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
   coverageDirectory: '../../coverage/apps/web',
   testEnvironment: 'jsdom',
 };

@@ -74,6 +74,7 @@
     "@nestjs/platform-fastify": "^11.2.3",
     "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "^7.10.0",
+    "@radix-ui/themes": "^3.3.0",
     "axios": "^1.6.0",
     "bullmq": "^6.3.0",
     "class-transformer": "^0.5.1",

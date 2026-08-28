@@ -2,7 +2,6 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { CommonModule, envFilePaths, validateEnv } from '../modules/common';
 import { apiConfig, dbConfig, redisConfig } from '../configs';
@@ -33,8 +32,6 @@ import { ItemModule } from '../modules/item/item.module';
         },
       }),
     }),
-
-    EventEmitterModule.forRoot(),
 
     CommonModule,
     DatabaseModule,

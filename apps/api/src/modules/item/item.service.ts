@@ -1,25 +1,68 @@
 import { randomInt } from 'node:crypto';
 
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  type MessageEvent,
+  type OnModuleDestroy,
+  type OnModuleInit,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Queue, QueueEvents } from 'bullmq';
+import { Observable, Subject } from 'rxjs';
 
-import { CommonService } from '../common';
+import { CommonService, SSE_EVENT_REPLAY_PAGE_SIZE } from '../common';
 import { EventType } from '../../generated/prisma/enums';
-import type { Item } from '../../generated/prisma/client';
+import type { Event, Item } from '../../generated/prisma/client';
 import { DatabaseService } from '../database/database.service';
 
 import type { CreateItemInput } from './item.dto';
 
 @Injectable()
-export class ItemService {
+export class ItemService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(ItemService.name);
+
+  // Redis-backed notification that *some* `items` job finished, on every API
+  // instance regardless of which one ran the worker.
+  private itemsQueueEvents!: QueueEvents;
+
+  // Fan-out "an item was processed" tick to every open SSE stream.
+  private readonly processedTick = new Subject<void>();
+
   constructor(
     private readonly db: DatabaseService,
     @InjectQueue('items') private readonly itemsQueue: Queue,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly config: ConfigService,
     private readonly commonService: CommonService,
   ) {}
+
+  public async onModuleInit() {
+    this.itemsQueueEvents = new QueueEvents('items', {
+      connection: {
+        host: this.config.getOrThrow<string>('redis.host'),
+        port: this.config.getOrThrow<number>('redis.port'),
+        db: this.config.getOrThrow<number>('redis.dbIndex'),
+      },
+    });
+
+    this.itemsQueueEvents.on('completed', () => this.processedTick.next());
+    this.itemsQueueEvents.on('error', (err) =>
+      this.logger.error('items QueueEvents error', err),
+    );
+
+    await this.itemsQueueEvents.waitUntilReady();
+  }
+
+  public async onModuleDestroy() {
+    this.processedTick.complete();
+    await this.itemsQueueEvents?.close();
+  }
+
+  /** Emits once whenever any `items` job completes, on this instance. */
+  public get processedEvents(): Observable<void> {
+    return this.processedTick.asObservable();
+  }
 
   public async submitItem(input: CreateItemInput) {
     const item = await this.db.$transaction(async (tx) => {
@@ -81,6 +124,45 @@ export class ItemService {
     });
   }
 
+  /**
+   * Replays the persisted event log past `cursor` (a `Last-Event-ID` = `seq`),
+   * oldest first, paging until drained. `null` replays from the beginning.
+   */
+  public async *iterateEventsSince(
+    cursor: bigint | null,
+  ): AsyncGenerator<{ seq: bigint; message: MessageEvent }> {
+    let current = cursor;
+
+    for (;;) {
+      const batch = await this.db.event.findMany({
+        where: current === null ? undefined : { seq: { gt: current } },
+        orderBy: { seq: 'asc' },
+        take: SSE_EVENT_REPLAY_PAGE_SIZE,
+      });
+
+      for (const event of batch) {
+        current = event.seq;
+        yield { seq: event.seq, message: this.toMessage(event) };
+      }
+
+      if (batch.length < SSE_EVENT_REPLAY_PAGE_SIZE) {
+        return;
+      }
+    }
+  }
+
+  private toMessage(event: Event): MessageEvent {
+    return {
+      id: event.seq.toString(),
+      type: event.type,
+      data: {
+        item_id: event.item_id,
+        payload: event.payload ?? null,
+        created_at: event.created_at,
+      },
+    };
+  }
+
   private async scoreItem(item: Item): Promise<{ score: number }> {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -113,7 +195,5 @@ export class ItemService {
         payload: { score },
       },
     });
-
-    this.eventEmitter.emit('item.processed', { itemId: item.id, score });
   }
 }

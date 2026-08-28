@@ -45,15 +45,19 @@ model Item {
 }
 
 model Event {
-  id          String    @id @default(uuid())
-  type        EventType
-  payload     Json?
-  occurred_at DateTime  @default(now())
+  id      String    @id @default(uuid())
+  // Monotonic, gap-free cursor for resumable SSE streaming (Last-Event-ID).
+  seq     BigInt    @default(autoincrement())
+  type    EventType
+  payload Json?
+
+  created_at DateTime @default(now())
 
   item_id String
   item    Item   @relation(fields: [item_id], references: [id], onDelete: Cascade)
 
   @@index([item_id])
   @@index([item_id, type])
+  @@index([seq])
   @@map("events")
 }

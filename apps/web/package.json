@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@rafiandria23/h3-zoom-test-api-client": "workspace:*",
-    "@reduxjs/toolkit": "^2.12.0",
     "next": "~16.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

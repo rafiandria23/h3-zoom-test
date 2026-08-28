@@ -2,20 +2,54 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Theme } from '@radix-ui/themes';
 
-// Stub the generated RTK Query hooks so the page renders without a live store
-// or network. Shapes mirror `ItemControllerList` / `ItemControllerSubmit`.
+// Stub the RTK Query hooks so the page renders without a live store or
+// network. Shapes mirror `useItemsInfiniteQuery` / `ItemControllerSubmit`.
 const submitTrigger = jest.fn().mockResolvedValue({});
 
 jest.mock('@rafiandria23/h3-zoom-test-api-client', () => ({
-  useItemControllerListQuery: jest.fn(() => ({
-    data: { data: [] },
+  useItemsInfiniteQuery: jest.fn(() => ({
+    data: { pages: [{ data: [] }], pageParams: [1] },
     isLoading: false,
     isError: false,
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    fetchNextPage: jest.fn(),
   })),
   useItemControllerSubmitMutation: jest.fn(() => [
     submitTrigger,
     { isLoading: false, isSuccess: false, isError: false },
   ]),
+  itemListApi: { util: { invalidateTags: jest.fn(() => ({ type: 'noop' })) } },
+}));
+
+// jsdom has no layout, so real `Virtuoso` renders nothing — render every row
+// synchronously plus the footer.
+jest.mock('react-virtuoso', () => ({
+  Virtuoso: ({
+    data = [],
+    itemContent,
+    components,
+  }: {
+    data?: unknown[];
+    itemContent: (index: number, item: unknown) => React.ReactNode;
+    components?: { Footer?: React.ComponentType };
+  }) => {
+    const Footer = components?.Footer;
+    return (
+      <div data-testid="virtuoso">
+        {data.map((item, index) => (
+          <div key={index}>{itemContent(index, item)}</div>
+        ))}
+        {Footer ? <Footer /> : null}
+      </div>
+    );
+  },
+}));
+
+// `ItemList` calls `useDispatch` for its polling-fallback effect; no store is
+// wired up in this page-level render test.
+jest.mock('react-redux', () => ({
+  useDispatch: () => jest.fn(),
 }));
 
 // The SSE hook talks to the store and EventSource; neither is wired up in

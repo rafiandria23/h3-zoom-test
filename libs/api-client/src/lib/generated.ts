@@ -21,7 +21,15 @@ const injectedRtkApi = api
         ItemControllerListApiResponse,
         ItemControllerListApiArg
       >({
-        query: () => ({ url: `/api/v1/items` }),
+        query: (queryArg) => ({
+          url: `/api/v1/items`,
+          params: {
+            page: queryArg.page,
+            size: queryArg.size,
+            sort_by: queryArg.sortBy,
+            sort_direction: queryArg.sortDirection,
+          },
+        }),
         providesTags: ['items'],
       }),
     }),
@@ -36,11 +44,18 @@ export type ItemControllerSubmitApiArg = {
   submitItemDto: SubmitItemDto;
 };
 export type ItemControllerListApiResponse =
-  /** status 200 All non-deleted items, oldest first. */ SuccessTimestampDto & {
+  /** status 200 A page of non-deleted items. `metadata.pagination.total` is the row count of the returned page. */ SuccessTimestampDto & {
     data?: ItemListEntryDto[];
-    metadata?: CountMetadataDto;
+    metadata?: PaginationMetadataDto;
   };
-export type ItemControllerListApiArg = void;
+export type ItemControllerListApiArg = {
+  /** 1-based page number. */
+  page?: number;
+  /** Rows per page. */
+  size?: number;
+  sortBy?: ItemSortField;
+  sortDirection?: SortDirection;
+};
 export type SuccessTimestampDto = {
   success: boolean;
   timestamp: string;
@@ -83,9 +98,21 @@ export type ItemListEntryDto = {
   status: ItemStatus;
   result: ItemResultDto | null;
 };
-export type CountMetadataDto = {
-  count: number;
+export type PaginationInfoDto = {
+  page: number;
+  size: number;
+  total: number;
 };
+export type SortDirection = 'asc' | 'desc';
+export type SortInfoDto = {
+  by: string;
+  direction: SortDirection;
+};
+export type PaginationMetadataDto = {
+  pagination: PaginationInfoDto;
+  sort: SortInfoDto;
+};
+export type ItemSortField = 'created_at' | 'updated_at' | 'label';
 export const {
   useItemControllerSubmitMutation,
   useItemControllerListQuery,

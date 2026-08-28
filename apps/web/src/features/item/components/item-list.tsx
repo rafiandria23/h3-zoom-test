@@ -1,17 +1,22 @@
 'use client';
 
-import { type FC } from 'react';
+import { type FC, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Badge, Callout, Flex, Heading, Spinner, Text } from '@radix-ui/themes';
-import { useItemControllerListQuery } from '@rafiandria23/h3-zoom-test-api-client';
+import { Virtuoso } from 'react-virtuoso';
+import {
+  itemListApi,
+  useItemsInfiniteQuery,
+} from '@rafiandria23/h3-zoom-test-api-client';
 
-import { Accordion, type AccordionEntry } from '@/components';
+import type { AppDispatch } from '@/redux';
 
 import { useItemEvents, type SseStatus } from '../hooks/use-item-events';
 
-import { ItemDetail } from './item-detail';
-import { ItemStatusBadge } from './item-status-badge';
+import { ItemRow } from './item-row';
 
-// Fallback poll interval used whenever the SSE stream isn't `live`.
+// RTK infinite queries take no `pollingInterval`; while the SSE stream isn't
+// `live`, refetch the loaded pages on this interval instead.
 const FALLBACK_POLL_MS = 30000;
 
 const STREAM_BADGE: Record<
@@ -37,31 +42,51 @@ const StreamBadge: FC<StreamBadgeProps> = ({ status }) => {
   );
 };
 
-// Item list as an accordion. Each row shows status + full detail, matching
-// `ItemListEntryDto` from apps/api. The SSE stream drives `pending` -> `done`
-// flips in real time; polling only runs as a fallback while the stream is not
-// `live`.
+// Newest-first offset paging can briefly overlap a page boundary when a fresh
+// item lands at the head. Drop duplicate ids, keeping the first occurrence.
+function dedupeById<T extends { id: string }>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    if (seen.has(row.id)) {
+      return false;
+    }
+    seen.add(row.id);
+    return true;
+  });
+}
+
+// Virtualized, infinite-scrolling item list. Pages come from
+// `useItemsInfiniteQuery` (newest first); scrolling to the bottom loads the
+// next page. The SSE stream (via `useItemEvents`) drives `pending` -> `done`
+// flips and pulls in newly submitted items.
 export const ItemList: FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { status: streamStatus } = useItemEvents();
 
-  const { data, isLoading, isError } = useItemControllerListQuery(undefined, {
-    pollingInterval: streamStatus === 'live' ? 0 : FALLBACK_POLL_MS,
-  });
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useItemsInfiniteQuery();
 
-  const items = data?.data ?? [];
+  const items = dedupeById(
+    data?.pages.flatMap((page) => page.data ?? []) ?? [],
+  );
 
-  const entries: AccordionEntry[] = items.map((item) => ({
-    id: item.id,
-    header: (
-      <Flex align="center" justify="between" gap="2">
-        <Text weight="medium" truncate>
-          {item.label}
-        </Text>
-        <ItemStatusBadge status={item.status} />
-      </Flex>
-    ),
-    content: <ItemDetail item={item} />,
-  }));
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (streamStatus === 'live') {
+      return;
+    }
+    const timer = setInterval(() => {
+      dispatch(itemListApi.util.invalidateTags(['items']));
+    }, FALLBACK_POLL_MS);
+    return () => clearInterval(timer);
+  }, [streamStatus, dispatch]);
 
   return (
     <Flex direction="column" gap="4">
@@ -70,6 +95,7 @@ export const ItemList: FC = () => {
         {items.length > 0 && (
           <Badge color="gray" variant="soft">
             {items.length}
+            {hasNextPage ? '+' : ''}
           </Badge>
         )}
         <StreamBadge status={streamStatus} />
@@ -96,7 +122,40 @@ export const ItemList: FC = () => {
         </Text>
       )}
 
-      {entries.length > 0 && <Accordion items={entries} />}
+      {items.length > 0 && (
+        <Virtuoso
+          useWindowScroll
+          data={items}
+          computeItemKey={(_, item) => item.id}
+          itemContent={(_, item) => (
+            <ItemRow
+              item={item}
+              open={openId === item.id}
+              onToggle={() =>
+                setOpenId((current) =>
+                  current === item.id ? null : item.id,
+                )
+              }
+            />
+          )}
+          endReached={() => {
+            if (hasNextPage && !isFetchingNextPage) {
+              fetchNextPage();
+            }
+          }}
+          components={{
+            Footer: () =>
+              isFetchingNextPage ? (
+                <Flex align="center" justify="center" gap="2" py="3">
+                  <Spinner />
+                  <Text size="2" color="gray">
+                    Loading more…
+                  </Text>
+                </Flex>
+              ) : null,
+          }}
+        />
+      )}
     </Flex>
   );
 };

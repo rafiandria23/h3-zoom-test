@@ -6615,7 +6615,6 @@ __metadata:
   resolution: "@rafiandria23/h3-zoom-test-web@workspace:apps/web"
   dependencies:
     "@rafiandria23/h3-zoom-test-api-client": "workspace:*"
-    "@reduxjs/toolkit": "npm:^2.12.0"
     next: "npm:~16.1.6"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
@@ -6653,6 +6652,7 @@ __metadata:
     "@playwright/test": "npm:^1.37.0"
     "@prisma/client": "npm:^7.10.0"
     "@radix-ui/themes": "npm:^3.3.0"
+    "@reduxjs/toolkit": "npm:^2.12.0"
     "@swc-node/register": "npm:1.11.1"
     "@swc/cli": "npm:~0.8.1"
     "@swc/core": "npm:1.15.8"
@@ -6694,6 +6694,7 @@ __metadata:
     react-dom: "npm:^19.0.0"
     react-hook-form: "npm:^7.86.0"
     react-redux: "npm:^9.3.0"
+    react-virtuoso: "npm:^4.18.12"
     reflect-metadata: "npm:^0.2.0"
     rxjs: "npm:^7.8.0"
     sass: "npm:1.97.2"
@@ -18836,6 +18837,16 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10c0/841938ff16d16a6b76895f4cb2e1fea957e5fe3b30febbf03a54892dae1c9153f2383e231dea0b3ba41192ad2f2849448fa859caccd288943bce32639e971bee
+  languageName: node
+  linkType: hard
+
+"react-virtuoso@npm:^4.18.12":
+  version: 4.18.12
+  resolution: "react-virtuoso@npm:4.18.12"
+  peerDependencies:
+    react: ">=16 || >=17 || >= 18 || >= 19"
+    react-dom: ">=16 || >=17 || >= 18 || >=19"
+  checksum: 10c0/c772369fc8f8693a7516447e459f9effb92d10db976afa8fc9a1cd26ab83493f2821840948c301c00ef879c996d46fbde51d2fcfbf0b9103d9a7916a58f685cb
   languageName: node
   linkType: hard
 

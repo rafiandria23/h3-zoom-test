@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import {
-  api,
+  itemListApi,
   ITEM_EVENT,
   parseItemEvent,
 } from '@rafiandria23/h3-zoom-test-api-client';
@@ -54,7 +54,7 @@ export function useItemEvents(): { status: SseStatus } {
     const scheduleInvalidate = () => {
       clearTimeout(invalidateTimer);
       invalidateTimer = setTimeout(() => {
-        dispatchRef.current(api.util.invalidateTags(['items']));
+        dispatchRef.current(itemListApi.util.invalidateTags(['items']));
       }, INVALIDATE_DEBOUNCE_MS);
     };
 
@@ -70,19 +70,18 @@ export function useItemEvents(): { status: SseStatus } {
 
           if (event.name === ITEM_EVENT.processed) {
             dispatchRef.current(
-              api.util.updateQueryData(
-                'itemControllerList',
-                undefined,
-                (draft) => {
-                  const entry = draft.data?.find(
+              itemListApi.util.updateQueryData('items', undefined, (draft) => {
+                for (const page of draft.pages) {
+                  const entry = page.data?.find(
                     (row) => row.id === event.data.item_id,
                   );
                   if (entry) {
                     entry.status = 'done';
                     entry.result = event.data.payload;
+                    return;
                   }
-                },
-              ),
+                }
+              }),
             );
             return;
           }

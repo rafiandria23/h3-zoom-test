@@ -3,8 +3,8 @@ import { act, renderHook } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import {
-  api,
   baseApi,
+  itemListApi,
   ITEM_EVENT,
 } from '@rafiandria23/h3-zoom-test-api-client';
 
@@ -85,29 +85,38 @@ type Store = ReturnType<typeof makeStore>;
 
 function seedList(store: Store) {
   // Synchronous cache write (unlike `upsertQueryData`, which runs the thunk).
+  // The infinite-query cache holds `{ pages, pageParams }`.
   store.dispatch(
-    api.util.upsertQueryEntries([
+    itemListApi.util.upsertQueryEntries([
       {
-        endpointName: 'itemControllerList',
+        endpointName: 'items',
         arg: undefined,
         value: {
-          success: true,
-          timestamp: '2026-01-01T00:00:00.000Z',
-          data: [
+          pages: [
             {
-              id: 'item-1',
-              content_type: 'text',
-              label: 'First',
-              value: 'a',
-              file_ref: null,
-              mime_type: null,
-              size: null,
-              created_at: '2026-01-01T00:00:00.000Z',
-              status: 'pending',
-              result: null,
+              success: true,
+              timestamp: '2026-01-01T00:00:00.000Z',
+              data: [
+                {
+                  id: 'item-1',
+                  content_type: 'text',
+                  label: 'First',
+                  value: 'a',
+                  file_ref: null,
+                  mime_type: null,
+                  size: null,
+                  created_at: '2026-01-01T00:00:00.000Z',
+                  status: 'pending',
+                  result: null,
+                },
+              ],
+              metadata: {
+                pagination: { page: 1, size: 20, total: 1 },
+                sort: { by: 'created_at', direction: 'desc' },
+              },
             },
           ],
-          metadata: { count: 1 },
+          pageParams: [1],
         },
       },
     ]),
@@ -115,8 +124,8 @@ function seedList(store: Store) {
 }
 
 function firstRow(store: Store) {
-  return api.endpoints.itemControllerList.select(undefined)(store.getState())
-    .data?.data?.[0];
+  return itemListApi.endpoints.items.select(undefined)(store.getState()).data
+    ?.pages?.[0]?.data?.[0];
 }
 
 describe('useItemEvents', () => {

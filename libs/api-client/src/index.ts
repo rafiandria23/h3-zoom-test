@@ -7,3 +7,7 @@ export * from './lib/generated';
 
 // Hand-written contract for the SSE stream, which the codegen does not cover.
 export * from './lib/item-events';
+
+// Hand-written infinite-scroll endpoint for GET /items (codegen emits only the
+// plain query).
+export * from './lib/item-list';

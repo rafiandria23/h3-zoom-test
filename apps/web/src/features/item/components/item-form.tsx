@@ -1,6 +1,6 @@
 'use client';
 
-import { type SyntheticEvent, useRef, useState } from 'react';
+import { type FC, type SyntheticEvent, useRef, useState } from 'react';
 import {
   Button,
   Callout,
@@ -48,7 +48,7 @@ const CONTENT_TYPE_OPTIONS: { value: ContentType; label: string }[] = [
 
 // Dynamic create form. The fields shown depend on `content_type`, mirroring
 // `SubmitItemDto` / `IsValidValueForContentType` in apps/api.
-export function ItemForm() {
+export const ItemForm: FC = () => {
   const [contentType, setContentType] = useState<ContentType>('text');
   const [label, setLabel] = useState('');
   const [value, setValue] = useState('');
@@ -281,4 +281,4 @@ export function ItemForm() {
       </form>
     </Card>
   );
-}
+};

@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useState } from 'react';
+import { type FC, type ReactNode, useState } from 'react';
 import { Box, Card, Flex } from '@radix-ui/themes';
 
 import styles from './accordion.module.scss';
@@ -17,7 +17,7 @@ export interface AccordionProps {
 
 // Controlled single-open disclosure list. Generic on purpose — callers supply
 // the header/content for each row.
-export function Accordion({ items }: AccordionProps) {
+export const Accordion: FC<AccordionProps> = ({ items }) => {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
@@ -47,4 +47,4 @@ export function Accordion({ items }: AccordionProps) {
       })}
     </Flex>
   );
-}
+};

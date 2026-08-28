@@ -1,11 +1,16 @@
+import { type FC } from 'react';
 import { Separator } from '@radix-ui/themes';
 import type { ItemListEntryDto } from '@rafiandria23/h3-zoom-test-api-client';
 
 import { DetailList } from '@/components';
 
+export interface ItemDetailProps {
+  item: ItemListEntryDto;
+}
+
 // Expanded accordion panel for a single item — every field from
 // `ItemListEntryDto` in apps/api.
-export function ItemDetail({ item }: { item: ItemListEntryDto }) {
+export const ItemDetail: FC<ItemDetailProps> = ({ item }) => {
   return (
     <>
       <Separator size="4" mb="3" />
@@ -34,4 +39,4 @@ export function ItemDetail({ item }: { item: ItemListEntryDto }) {
       />
     </>
   );
-}
+};

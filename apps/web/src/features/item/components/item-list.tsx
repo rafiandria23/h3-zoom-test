@@ -1,5 +1,6 @@
 'use client';
 
+import { type FC } from 'react';
 import { Badge, Callout, Flex, Heading, Spinner, Text } from '@radix-ui/themes';
 import { useItemControllerListQuery } from '@rafiandria23/h3-zoom-test-api-client';
 
@@ -23,20 +24,24 @@ const STREAM_BADGE: Record<
   stale: { color: 'gray', label: 'Polling' },
 };
 
-function StreamBadge({ status }: { status: SseStatus }) {
+interface StreamBadgeProps {
+  status: SseStatus;
+}
+
+const StreamBadge: FC<StreamBadgeProps> = ({ status }) => {
   const { color, label } = STREAM_BADGE[status];
   return (
     <Badge color={color} variant="soft" size="1">
       {label}
     </Badge>
   );
-}
+};
 
 // Item list as an accordion. Each row shows status + full detail, matching
 // `ItemListEntryDto` from apps/api. The SSE stream drives `pending` -> `done`
 // flips in real time; polling only runs as a fallback while the stream is not
 // `live`.
-export function ItemList() {
+export const ItemList: FC = () => {
   const { status: streamStatus } = useItemEvents();
 
   const { data, isLoading, isError } = useItemControllerListQuery(undefined, {
@@ -94,4 +99,4 @@ export function ItemList() {
       {entries.length > 0 && <Accordion items={entries} />}
     </Flex>
   );
-}
+};

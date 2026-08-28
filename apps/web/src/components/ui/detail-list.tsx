@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type FC, type ReactNode } from 'react';
 import { Flex, Text } from '@radix-ui/themes';
 
 export interface DetailListEntry {
@@ -11,7 +11,7 @@ export interface DetailListProps {
 }
 
 // A label/value column — right-aligned values that wrap on long tokens.
-export function DetailList({ items }: DetailListProps) {
+export const DetailList: FC<DetailListProps> = ({ items }) => {
   return (
     <Flex direction="column" gap="2">
       {items.map(({ label, value }) => (
@@ -26,4 +26,4 @@ export function DetailList({ items }: DetailListProps) {
       ))}
     </Flex>
   );
-}
+};

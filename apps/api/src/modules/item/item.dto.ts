@@ -34,8 +34,10 @@ export class SubmitItemDto {
     description:
       'Required for text/long_text (string) and numeric (number); omitted for file.',
   })
+  // No `@Type()` coercion here: `value` is legitimately a string or a number,
+  // and the wire format (JSON) already carries that distinction. The custom
+  // validator below is what enforces the right runtime type per `content_type`.
   @IsOptional()
-  @Type(() => Number)
   @IsValidValueForContentType()
   value?: string | number;
 

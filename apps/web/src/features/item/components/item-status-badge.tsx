@@ -10,8 +10,8 @@ export interface ItemStatusBadgeProps {
 // (`item.service.ts` -> `listItems`).
 export const ItemStatusBadge: FC<ItemStatusBadgeProps> = ({ status }) => {
   return status === 'done' ? (
-    <Badge color="green">done</Badge>
+    <Badge color="green">Done</Badge>
   ) : (
-    <Badge color="amber">pending</Badge>
+    <Badge color="amber">Pending</Badge>
   );
 };

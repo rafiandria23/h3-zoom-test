@@ -21,7 +21,7 @@ const RootLayout: FC<RootLayoutProps> = ({ children }) => {
       <body>
         <StoreProvider>
           <Theme accentColor="indigo" grayColor="slate" radius="medium">
-            <Flex direction="column" minHeight="100vh">
+            <Flex direction="column" height="100dvh">
               <Box asChild flexShrink="0">
                 <header>
                   <Container size="4" px="4" py="3">
@@ -30,13 +30,13 @@ const RootLayout: FC<RootLayoutProps> = ({ children }) => {
                 </header>
               </Box>
 
-              <Box asChild flexGrow="1">
+              <Flex asChild direction="column" flexGrow="1" minHeight="0">
                 <main>
-                  <Container size="3" px="4" py="6">
+                  <Container size="3" px="4" py="6" height="100%" minHeight="0">
                     {children}
                   </Container>
                 </main>
-              </Box>
+              </Flex>
 
               <Box asChild flexShrink="0">
                 <footer>

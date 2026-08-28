@@ -1,0 +1,9 @@
+// Styling for the virtualized item list.
+
+// Fill the space left in the list column and scroll internally, so a full list
+// takes the viewport all the way down without ever growing / scrolling the
+// whole page.
+.scroller {
+  flex: 1 1 0;
+  min-height: 0;
+}

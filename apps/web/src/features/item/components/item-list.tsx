@@ -15,6 +15,8 @@ import { useItemEvents, type SseStatus } from '../hooks/use-item-events';
 
 import { ItemRow } from './item-row';
 
+import styles from './item-list.module.scss';
+
 // RTK infinite queries take no `pollingInterval`; while the SSE stream isn't
 // `live`, refetch the loaded pages on this interval instead.
 const FALLBACK_POLL_MS = 30000;
@@ -89,8 +91,8 @@ export const ItemList: FC = () => {
   }, [streamStatus, dispatch]);
 
   return (
-    <Flex direction="column" gap="4">
-      <Flex align="center" gap="2">
+    <Flex direction="column" gap="4" minHeight="0">
+      <Flex align="center" gap="2" flexShrink="0">
         <Heading size="4">Items</Heading>
         {items.length > 0 && (
           <Badge color="gray" variant="soft">
@@ -124,7 +126,7 @@ export const ItemList: FC = () => {
 
       {items.length > 0 && (
         <Virtuoso
-          useWindowScroll
+          className={styles.scroller}
           data={items}
           computeItemKey={(_, item) => item.id}
           itemContent={(_, item) => (

@@ -24,6 +24,21 @@ jest.mock('@/features/item/hooks/use-item-events', () => ({
   useItemEvents: jest.fn(() => ({ status: 'live' })),
 }));
 
+// The upload hook talks to the store and XHR; not wired up here either, and it
+// has its own unit tests.
+jest.mock('@/features/item/hooks/use-item-upload', () => ({
+  useItemUpload: jest.fn(() => ({
+    upload: jest.fn().mockResolvedValue(undefined),
+    abort: jest.fn(),
+    reset: jest.fn(),
+    progress: 0,
+    status: 'idle',
+    isUploading: false,
+    isSuccess: false,
+    isError: false,
+  })),
+}));
+
 import Page from './page';
 
 // jsdom gaps that Radix Themes primitives (Select / ScrollArea) rely on.

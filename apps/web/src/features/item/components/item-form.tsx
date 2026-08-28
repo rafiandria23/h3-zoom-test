@@ -1,12 +1,13 @@
 'use client';
 
-import { type SyntheticEvent, useState } from 'react';
+import { type SyntheticEvent, useRef, useState } from 'react';
 import {
   Button,
   Callout,
   Card,
   Flex,
   Heading,
+  Progress,
   Select,
   Spinner,
   Text,
@@ -18,6 +19,23 @@ import {
   type ContentType,
   type SubmitItemDto,
 } from '@rafiandria23/h3-zoom-test-api-client';
+
+import { useItemUpload } from '../hooks/use-item-upload';
+
+// Human-readable byte size for the selected-file summary.
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const units = ['KB', 'MB', 'GB'];
+  let size = bytes / 1024;
+  let unit = 0;
+  while (size >= 1024 && unit < units.length - 1) {
+    size /= 1024;
+    unit += 1;
+  }
+  return `${size.toFixed(1)} ${units[unit]}`;
+}
 
 // Selectable content types, mirroring the `ContentType` enum in apps/api
 // (prisma schema / item.dto.ts).
@@ -34,23 +52,37 @@ export function ItemForm() {
   const [contentType, setContentType] = useState<ContentType>('text');
   const [label, setLabel] = useState('');
   const [value, setValue] = useState('');
-  const [fileRef, setFileRef] = useState('');
-  const [mimeType, setMimeType] = useState('');
-  const [size, setSize] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [submit, { isLoading, isSuccess, isError }] =
     useItemControllerSubmitMutation();
+
+  const {
+    upload: uploadFile,
+    reset: resetUpload,
+    progress: uploadProgress,
+    isUploading,
+    isSuccess: uploadSucceeded,
+    isError: uploadFailed,
+  } = useItemUpload();
 
   const isText = contentType === 'text' || contentType === 'long_text';
   const isNumeric = contentType === 'numeric';
   const isFile = contentType === 'file';
 
+  const busy = isLoading || isUploading;
+  const failed = isError || uploadFailed;
+  const succeeded = isSuccess || uploadSucceeded;
+
   function resetValueFields() {
     setValue('');
-    setFileRef('');
-    setMimeType('');
-    setSize('');
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    resetUpload();
   }
 
   function validate(): string | null {
@@ -62,6 +94,9 @@ export function ItemForm() {
     }
     if (isNumeric && (value.trim() === '' || Number.isNaN(Number(value)))) {
       return 'Value must be a number.';
+    }
+    if (isFile && !file) {
+      return 'Choose a file to upload.';
     }
     return null;
   }
@@ -76,17 +111,28 @@ export function ItemForm() {
       return;
     }
 
-    const dto: SubmitItemDto = { content_type: contentType, label: label.trim() };
-
-    if (isNumeric) {
-      dto.value = Number(value);
-    } else if (isText) {
-      dto.value = value;
-    } else {
-      if (fileRef.trim()) dto.file_ref = fileRef.trim();
-      if (mimeType.trim()) dto.mime_type = mimeType.trim();
-      if (size.trim() && !Number.isNaN(Number(size))) dto.size = Number(size);
+    // File items are streamed as `multipart/form-data` so upload progress can
+    // be reported; every other content type goes through the JSON mutation.
+    if (isFile) {
+      if (!file) {
+        return;
+      }
+      try {
+        await uploadFile({ file, label: label.trim(), contentType });
+        // Keep the `success` status (and its callout) — only clear the inputs.
+        setLabel('');
+        setFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } catch {
+        // Surfaced via `uploadFailed` below.
+      }
+      return;
     }
+
+    const dto: SubmitItemDto = { content_type: contentType, label: label.trim() };
+    dto.value = isNumeric ? Number(value) : value;
 
     try {
       await submit({ submitItemDto: dto }).unwrap();
@@ -179,38 +225,33 @@ export function ItemForm() {
           )}
 
           {isFile && (
-            <Flex direction="column" gap="3">
-              <label>
-                <Text as="div" size="2" mb="1" weight="medium">
-                  File ref
+            <Flex direction="column" gap="2">
+              <Text as="div" size="2" weight="medium">
+                File
+              </Text>
+              <input
+                ref={fileInputRef}
+                type="file"
+                disabled={busy}
+                onChange={(event) => {
+                  setFile(event.target.files?.[0] ?? null);
+                  setFormError(null);
+                  resetUpload();
+                }}
+              />
+              {file && (
+                <Text size="1" color="gray">
+                  {file.name} · {formatBytes(file.size)}
                 </Text>
-                <TextField.Root
-                  value={fileRef}
-                  onChange={(event) => setFileRef(event.target.value)}
-                  placeholder="s3://bucket/key"
-                />
-              </label>
-              <label>
-                <Text as="div" size="2" mb="1" weight="medium">
-                  MIME type
-                </Text>
-                <TextField.Root
-                  value={mimeType}
-                  onChange={(event) => setMimeType(event.target.value)}
-                  placeholder="application/pdf"
-                />
-              </label>
-              <label>
-                <Text as="div" size="2" mb="1" weight="medium">
-                  Size (bytes)
-                </Text>
-                <TextField.Root
-                  type="number"
-                  value={size}
-                  onChange={(event) => setSize(event.target.value)}
-                  placeholder="20480"
-                />
-              </label>
+              )}
+              {isUploading && (
+                <Flex direction="column" gap="1" mt="1">
+                  <Progress value={uploadProgress} />
+                  <Text size="1" color="gray">
+                    Uploading… {uploadProgress}%
+                  </Text>
+                </Flex>
+              )}
             </Flex>
           )}
 
@@ -220,21 +261,21 @@ export function ItemForm() {
             </Callout.Root>
           )}
 
-          {isError && (
+          {failed && (
             <Callout.Root color="red" size="1">
               <Callout.Text>Failed to submit item. Try again.</Callout.Text>
             </Callout.Root>
           )}
 
-          {isSuccess && !isError && (
+          {succeeded && !failed && (
             <Callout.Root color="green" size="1">
               <Callout.Text>Item submitted for processing.</Callout.Text>
             </Callout.Root>
           )}
 
-          <Button type="submit" disabled={isLoading}>
-            <Spinner loading={isLoading} />
-            Submit
+          <Button type="submit" disabled={busy}>
+            <Spinner loading={busy} />
+            {isUploading ? 'Uploading…' : 'Submit'}
           </Button>
         </Flex>
       </form>

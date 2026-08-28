@@ -1,6 +1,7 @@
 import { createItemEventsHub } from './item-events-worker';
 import {
   openItemEventsTransport,
+  SHARED_WORKER_PROBE_MS,
   type ItemEventFrame,
   type SseStatus,
 } from './item-events-transport';
@@ -65,6 +66,7 @@ class FakeMessagePort {
   readonly start = jest.fn();
   readonly close = jest.fn();
   onmessage: ((event: MessageEvent) => void) | null = null;
+  onmessageerror: ((event: unknown) => void) | null = null;
 
   /** Simulate a message arriving from the other end. */
   receive(data: unknown) {
@@ -78,6 +80,7 @@ class FakeSharedWorker {
 
   readonly port = new FakeMessagePort();
   readonly url: string;
+  onerror: ((event: unknown) => void) | null = null;
 
   constructor(url: string | URL) {
     if (FakeSharedWorker.shouldThrow) {
@@ -281,6 +284,76 @@ describe('openItemEventsTransport', () => {
     });
 
     expect(FakeEventSource.instances).toHaveLength(1);
+  });
+
+  it('falls back to a direct EventSource when the worker script fails to load', () => {
+    setGlobals({ EventSource: FakeEventSource, SharedWorker: FakeSharedWorker });
+    const onFrame = jest.fn();
+    const onStatus = jest.fn();
+
+    openItemEventsTransport('/events', { onFrame, onStatus });
+    expect(FakeEventSource.instances).toHaveLength(0);
+
+    // The browser fires `error` on the worker when its script can't be fetched.
+    FakeSharedWorker.instances[0].onerror?.(new Event('error'));
+
+    expect(FakeSharedWorker.instances[0].port.close).toHaveBeenCalled();
+    expect(FakeEventSource.instances).toHaveLength(1);
+    expect(onStatus).toHaveBeenCalledWith('connecting');
+
+    FakeEventSource.instances[0].open();
+    expect(onStatus).toHaveBeenCalledWith('live');
+
+    FakeEventSource.instances[0].emitFrame('item_submitted', { item_id: 'x' });
+    expect(onFrame).toHaveBeenCalledWith({
+      type: 'item_submitted',
+      data: JSON.stringify({ item_id: 'x' }),
+    });
+  });
+
+  it('falls back to a direct EventSource when the worker never responds', () => {
+    jest.useFakeTimers();
+    try {
+      setGlobals({
+        EventSource: FakeEventSource,
+        SharedWorker: FakeSharedWorker,
+      });
+
+      openItemEventsTransport('/events', {
+        onFrame: jest.fn(),
+        onStatus: jest.fn(),
+      });
+      expect(FakeEventSource.instances).toHaveLength(0);
+
+      jest.advanceTimersByTime(SHARED_WORKER_PROBE_MS);
+
+      expect(FakeEventSource.instances).toHaveLength(1);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('stops probing and does not fall back once closed', () => {
+    jest.useFakeTimers();
+    try {
+      setGlobals({
+        EventSource: FakeEventSource,
+        SharedWorker: FakeSharedWorker,
+      });
+
+      const transport = openItemEventsTransport('/events', {
+        onFrame: jest.fn(),
+        onStatus: jest.fn(),
+      });
+      transport.close();
+
+      FakeSharedWorker.instances[0].onerror?.(new Event('error'));
+      jest.advanceTimersByTime(SHARED_WORKER_PROBE_MS);
+
+      expect(FakeEventSource.instances).toHaveLength(0);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('reports stale when neither transport is available', () => {

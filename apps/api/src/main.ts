@@ -5,9 +5,12 @@ import {
   FastifyAdapter,
   type NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { SwaggerModule } from '@nestjs/swagger';
 import multipart from '@fastify/multipart';
 
 import { AppModule } from './app/app.module';
+import { NodeEnv } from './modules/common';
+import { buildOpenApiDocument } from './openapi';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -24,6 +27,14 @@ async function bootstrap() {
     origin: configService.get<string>('api.webUrl'),
     methods: ['HEAD', 'GET', 'POST'],
   });
+
+  // Swagger UI at the root ('/'), outside the '/api/v1' prefix. Disabled in
+  // production. The same document definition feeds the `openapi` target.
+  if (process.env.NODE_ENV !== NodeEnv.Production) {
+    SwaggerModule.setup('/', app, buildOpenApiDocument(app), {
+      useGlobalPrefix: false,
+    });
+  }
 
   const apiHost = configService.get<string>('api.host') as string;
   const apiPort = configService.get<number>('api.port') as number;

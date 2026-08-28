@@ -1,0 +1,343 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/items": {
+      "post": {
+        "description": "Persists the item, emits an `item_submitted` event, and enqueues it on the `items` queue.",
+        "operationId": "ItemController_submit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitItemDto"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created item.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessTimestampDto"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/ItemDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Submit an item for processing",
+        "tags": [
+          "items"
+        ]
+      },
+      "get": {
+        "operationId": "ItemController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All non-deleted items, oldest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessTimestampDto"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ItemListEntryDto"
+                          }
+                        },
+                        "metadata": {
+                          "$ref": "#/components/schemas/CountMetadataDto"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all items with their processing status",
+        "tags": [
+          "items"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "H3 Zoom Test API",
+    "description": "Item submission and asynchronous processing API.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "SuccessTimestampDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "success",
+          "timestamp"
+        ]
+      },
+      "ContentType": {
+        "type": "string",
+        "enum": [
+          "text",
+          "long_text",
+          "numeric",
+          "file"
+        ]
+      },
+      "ItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ContentType"
+              }
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "nullable": true
+          },
+          "file_ref": {
+            "type": "string",
+            "nullable": true
+          },
+          "mime_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "size": {
+            "type": "number",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "content_type",
+          "label",
+          "value",
+          "file_ref",
+          "mime_type",
+          "size",
+          "created_at",
+          "updated_at",
+          "deleted_at"
+        ]
+      },
+      "SubmitItemDto": {
+        "type": "object",
+        "properties": {
+          "content_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ContentType"
+              }
+            ]
+          },
+          "label": {
+            "type": "string",
+            "example": "Quarterly report"
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Required for text/long_text (string) and numeric (number); omitted for file."
+          },
+          "file_ref": {
+            "type": "string"
+          },
+          "mime_type": {
+            "type": "string",
+            "example": "application/pdf"
+          },
+          "size": {
+            "type": "number",
+            "example": 20480
+          }
+        },
+        "required": [
+          "content_type",
+          "label"
+        ]
+      },
+      "ItemStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "done"
+        ]
+      },
+      "ItemResultDto": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number",
+            "example": 87
+          }
+        },
+        "required": [
+          "score"
+        ]
+      },
+      "ItemListEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ContentType"
+              }
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "nullable": true
+          },
+          "file_ref": {
+            "type": "string",
+            "nullable": true
+          },
+          "mime_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "size": {
+            "type": "number",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItemStatus"
+              }
+            ]
+          },
+          "result": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItemResultDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "content_type",
+          "label",
+          "value",
+          "file_ref",
+          "mime_type",
+          "size",
+          "created_at",
+          "status",
+          "result"
+        ]
+      },
+      "CountMetadataDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "count"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/reduxjs/redux-toolkit/master/packages/rtk-query-codegen-openapi/src/config.schema.json",
+  "schemaFile": "../../apps/api/openapi.json",
+  "apiFile": "./src/lib/base-api.ts",
+  "apiImport": "baseApi",
+  "outputFile": "./src/lib/generated.ts",
+  "exportName": "api",
+  "hooks": { "queries": true, "lazyQueries": true, "mutations": true },
+  "tag": true
+}

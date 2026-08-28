@@ -1,0 +1,2 @@
+# Feature slices live here: one folder per feature (components, hooks,
+# RTK Query endpoint injections via baseApi.injectEndpoints, local UI state).

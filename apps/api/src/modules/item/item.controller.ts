@@ -8,29 +8,56 @@ import {
   UseInterceptors,
   type MessageEvent,
 } from '@nestjs/common';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Observable, concat, from, interval, map, mergeMap, tap } from 'rxjs';
 
-import { SSE_HEARTBEAT_INTERVAL_MS } from '../common';
+import {
+  ApiSuccessResponse,
+  CountMetadataDto,
+  SSE_HEARTBEAT_INTERVAL_MS,
+} from '../common';
 import { MultipartInterceptor } from '../file/file.interceptor';
 
-import { SubmitItemDto } from './item.dto';
+import { ItemDto, ItemListEntryDto, SubmitItemDto } from './item.dto';
 import { ItemService } from './item.service';
 
+@ApiTags('items')
 @Controller('/items')
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
   @Post('/')
   @UseInterceptors(MultipartInterceptor)
+  @ApiOperation({
+    summary: 'Submit an item for processing',
+    description:
+      'Persists the item, emits an `item_submitted` event, and enqueues it on the `items` queue.',
+  })
+  @ApiConsumes('application/json', 'multipart/form-data')
+  @ApiBody({ type: SubmitItemDto })
+  @ApiSuccessResponse(ItemDto, { description: 'The created item.' })
   submit(@Body() body: SubmitItemDto) {
     return this.itemService.submitItem(body);
   }
 
   @Get('/')
+  @ApiOperation({ summary: 'List all items with their processing status' })
+  @ApiSuccessResponse(ItemListEntryDto, {
+    isArray: true,
+    metadata: CountMetadataDto,
+    description: 'All non-deleted items, oldest first.',
+  })
   list() {
     return this.itemService.listItems();
   }
 
+  @ApiExcludeEndpoint()
   @Sse('/events')
   sseEvents(
     @Headers('last-event-id') lastEventId?: string,

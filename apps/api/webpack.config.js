@@ -14,6 +14,11 @@ module.exports = {
       target: 'node',
       compiler: 'tsc',
       main: './src/main.ts',
+      // Headless OpenAPI emitter — built through the same pipeline as `main`
+      // so the generated Prisma client resolves. Run via the `openapi` target.
+      additionalEntryPoints: [
+        { entryName: 'openapi', entryPath: './src/openapi.script.ts' },
+      ],
       tsConfig: './tsconfig.app.json',
       assets: ['./src/assets'],
       optimization: false,

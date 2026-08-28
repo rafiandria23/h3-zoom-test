@@ -2,8 +2,9 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Next.js options go here
-  // See: https://nextjs.org/docs/app/api-reference/config/next-config-js
+  // Workspace libs are consumed as TS source — Next must transpile them
+  // (and dedupe React) rather than treat them as pre-built deps.
+  transpilePackages: ['@rafiandria23/h3-zoom-test-api-client'],
 };
 
 module.exports = nextConfig;

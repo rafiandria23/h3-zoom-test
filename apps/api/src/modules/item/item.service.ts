@@ -14,10 +14,10 @@ import { Observable, Subject } from 'rxjs';
 
 import { CommonService, SSE_EVENT_REPLAY_PAGE_SIZE } from '../common';
 import { EventType } from '../../generated/prisma/enums';
-import type { Event, Item } from '../../generated/prisma/client';
+import type { Event, Item, Prisma } from '../../generated/prisma/client';
 import { DatabaseService } from '../database/database.service';
 
-import type { CreateItemInput } from './item.dto';
+import type { CreateItemInput, ListItemsQueryDto } from './item.dto';
 
 @Injectable()
 export class ItemService implements OnModuleInit, OnModuleDestroy {
@@ -92,11 +92,19 @@ export class ItemService implements OnModuleInit, OnModuleDestroy {
     return this.commonService.successTimestamp({ data: item });
   }
 
-  public async listItems() {
+  public async listItems(query: ListItemsQueryDto) {
+    const { page, size, sort_by, sort_direction } = query;
+
+    const orderBy = {
+      [sort_by]: sort_direction,
+    } as Prisma.ItemOrderByWithRelationInput;
+
     const items = await this.db.item.findMany({
       where: { deleted_at: null },
-      orderBy: { created_at: 'asc' },
+      orderBy,
       include: { events: true },
+      skip: (page - 1) * size,
+      take: size,
     });
 
     const data = items.map((item) => {
@@ -119,7 +127,10 @@ export class ItemService implements OnModuleInit, OnModuleDestroy {
     });
 
     return this.commonService.successTimestamp({
-      metadata: { count: data.length },
+      metadata: {
+        pagination: { page, size, total: data.length },
+        sort: { by: sort_by, direction: sort_direction },
+      },
       data,
     });
   }

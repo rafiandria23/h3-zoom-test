@@ -4,6 +4,7 @@ import {
   Get,
   Headers,
   Post,
+  Query,
   Sse,
   UseInterceptors,
   type MessageEvent,
@@ -19,12 +20,17 @@ import { Observable, concat, from, interval, map, mergeMap, tap } from 'rxjs';
 
 import {
   ApiSuccessResponse,
-  CountMetadataDto,
+  PaginationMetadataDto,
   SSE_HEARTBEAT_INTERVAL_MS,
 } from '../common';
 import { MultipartInterceptor } from '../file/file.interceptor';
 
-import { ItemDto, ItemListEntryDto, SubmitItemDto } from './item.dto';
+import {
+  ItemDto,
+  ItemListEntryDto,
+  ListItemsQueryDto,
+  SubmitItemDto,
+} from './item.dto';
 import { ItemService } from './item.service';
 
 @ApiTags('items')
@@ -47,14 +53,15 @@ export class ItemController {
   }
 
   @Get('/')
-  @ApiOperation({ summary: 'List all items with their processing status' })
+  @ApiOperation({ summary: 'List items with their processing status' })
   @ApiSuccessResponse(ItemListEntryDto, {
     isArray: true,
-    metadata: CountMetadataDto,
-    description: 'All non-deleted items, oldest first.',
+    metadata: PaginationMetadataDto,
+    description:
+      'A page of non-deleted items. `metadata.pagination.total` is the row count of the returned page.',
   })
-  list() {
-    return this.itemService.listItems();
+  list(@Query() query: ListItemsQueryDto) {
+    return this.itemService.listItems(query);
   }
 
   @ApiExcludeEndpoint()

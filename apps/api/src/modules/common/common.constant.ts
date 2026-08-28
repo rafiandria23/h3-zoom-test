@@ -1,5 +1,22 @@
 export const RADIX = 10;
 
+// Pagination bounds/defaults and sort direction for list endpoints
+// (`?page=&size=&sort_by=&sort_direction=`).
+export enum PaginationPage {
+  Min = 1,
+}
+
+export enum PaginationSize {
+  Min = 1,
+  Max = 600,
+  Default = 10,
+}
+
+export enum SortDirection {
+  Asc = 'asc',
+  Desc = 'desc',
+}
+
 // One page of the persisted event backlog replayed over SSE. The stream keeps
 // fetching pages until everything past the client's cursor is drained, so this
 // only bounds the size of a single fetch.

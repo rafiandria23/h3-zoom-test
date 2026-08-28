@@ -11,12 +11,42 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
+import { PaginationQueryDto, SortDirection } from '../common';
 import { ContentType } from '../../generated/prisma/enums';
 
 // Processing status derived from the item's event log.
 export enum ItemStatus {
   Pending = 'pending',
   Done = 'done',
+}
+
+// Columns `GET /items` allows sorting on.
+export enum ItemSortField {
+  CreatedAt = 'created_at',
+  UpdatedAt = 'updated_at',
+  Label = 'label',
+}
+
+// Query params for `GET /items`: `page`/`size` (inherited) plus the
+// item-specific `sort_by` whitelist and shared `sort_direction`.
+export class ListItemsQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    enum: ItemSortField,
+    enumName: 'ItemSortField',
+    default: ItemSortField.CreatedAt,
+  })
+  @IsOptional()
+  @IsEnum(ItemSortField)
+  sort_by: ItemSortField = ItemSortField.CreatedAt;
+
+  @ApiPropertyOptional({
+    enum: SortDirection,
+    enumName: 'SortDirection',
+    default: SortDirection.Asc,
+  })
+  @IsOptional()
+  @IsEnum(SortDirection)
+  sort_direction: SortDirection = SortDirection.Asc;
 }
 
 export class SubmitItemDto {

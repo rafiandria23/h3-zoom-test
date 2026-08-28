@@ -1,6 +1,8 @@
 import { ValidationPipe } from '@nestjs/common';
 
-import { SubmitItemDto } from './item.dto';
+import { PaginationPage, PaginationSize, SortDirection } from '../common';
+
+import { ItemSortField, ListItemsQueryDto, SubmitItemDto } from './item.dto';
 
 describe('SubmitItemDto (via the app-wide ValidationPipe)', () => {
   const pipe = new ValidationPipe({
@@ -65,6 +67,60 @@ describe('SubmitItemDto (via the app-wide ValidationPipe)', () => {
   it('rejects a submission with no label', async () => {
     await expect(
       transform({ content_type: 'text', value: 'Some text' }),
+    ).rejects.toThrow();
+  });
+});
+
+describe('ListItemsQueryDto (via the app-wide ValidationPipe)', () => {
+  const pipe = new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidUnknownValues: true,
+  });
+  const meta = {
+    type: 'query',
+    metatype: ListItemsQueryDto,
+    data: '',
+  } as never;
+
+  const transform = (query: unknown) => pipe.transform(query, meta);
+
+  it('applies pagination and sort defaults for an empty query', async () => {
+    await expect(transform({})).resolves.toEqual({
+      page: PaginationPage.Min,
+      size: PaginationSize.Default,
+      sort_by: ItemSortField.CreatedAt,
+      sort_direction: SortDirection.Asc,
+    });
+  });
+
+  it('accepts a whitelisted sort field and direction, coercing page/size', async () => {
+    await expect(
+      transform({
+        page: '2',
+        size: '50',
+        sort_by: 'label',
+        sort_direction: 'desc',
+      }),
+    ).resolves.toEqual({
+      page: 2,
+      size: 50,
+      sort_by: ItemSortField.Label,
+      sort_direction: SortDirection.Desc,
+    });
+  });
+
+  it('rejects a sort field that is not on the whitelist', async () => {
+    await expect(transform({ sort_by: 'value' })).rejects.toThrow();
+  });
+
+  it('rejects an unknown sort direction', async () => {
+    await expect(transform({ sort_direction: 'sideways' })).rejects.toThrow();
+  });
+
+  it('rejects a size above the maximum', async () => {
+    await expect(
+      transform({ size: String(PaginationSize.Max + 1) }),
     ).rejects.toThrow();
   });
 });

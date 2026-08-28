@@ -51,10 +51,50 @@
       },
       "get": {
         "operationId": "ItemController_list",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-based page number.",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "size",
+            "required": false,
+            "in": "query",
+            "description": "Rows per page.",
+            "schema": {
+              "minimum": 1,
+              "maximum": 600,
+              "default": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort_by",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ItemSortField"
+            }
+          },
+          {
+            "name": "sort_direction",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirection"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "All non-deleted items, oldest first.",
+            "description": "A page of non-deleted items. `metadata.pagination.total` is the row count of the returned page.",
             "content": {
               "application/json": {
                 "schema": {
@@ -71,7 +111,7 @@
                           }
                         },
                         "metadata": {
-                          "$ref": "#/components/schemas/CountMetadataDto"
+                          "$ref": "#/components/schemas/PaginationMetadataDto"
                         }
                       }
                     }
@@ -81,7 +121,7 @@
             }
           }
         },
-        "summary": "List all items with their processing status",
+        "summary": "List items with their processing status",
         "tags": [
           "items"
         ]
@@ -326,16 +366,76 @@
           "result"
         ]
       },
-      "CountMetadataDto": {
+      "PaginationInfoDto": {
         "type": "object",
         "properties": {
-          "count": {
+          "page": {
             "type": "number",
-            "example": 3
+            "example": 1
+          },
+          "size": {
+            "type": "number",
+            "example": 10
+          },
+          "total": {
+            "type": "number",
+            "example": 10
           }
         },
         "required": [
-          "count"
+          "page",
+          "size",
+          "total"
+        ]
+      },
+      "SortDirection": {
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc"
+        ]
+      },
+      "SortInfoDto": {
+        "type": "object",
+        "properties": {
+          "by": {
+            "type": "string",
+            "example": "created_at"
+          },
+          "direction": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SortDirection"
+              }
+            ]
+          }
+        },
+        "required": [
+          "by",
+          "direction"
+        ]
+      },
+      "PaginationMetadataDto": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationInfoDto"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortInfoDto"
+          }
+        },
+        "required": [
+          "pagination",
+          "sort"
+        ]
+      },
+      "ItemSortField": {
+        "type": "string",
+        "enum": [
+          "created_at",
+          "updated_at",
+          "label"
         ]
       }
     }

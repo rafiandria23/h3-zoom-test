@@ -5,11 +5,20 @@ import {
   ApiExtraModels,
   ApiOkResponse,
   ApiProperty,
+  ApiPropertyOptional,
   getSchemaPath,
 } from '@nestjs/swagger';
+import { Type as TransformType } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
-import { LogLevel, NodeEnv, WebScheme } from './common.constant';
+import {
+  LogLevel,
+  NodeEnv,
+  PaginationPage,
+  PaginationSize,
+  SortDirection,
+  WebScheme,
+} from './common.constant';
 
 // Default envelope for successful response payloads. `MD` types the `metadata`
 // (pagination, counts, ...); `D` types the primary `data`.
@@ -32,10 +41,72 @@ export class SuccessTimestampDto<MD = unknown, D = unknown> {
   }
 }
 
-// `metadata` shape for list endpoints that only report a row count.
-export class CountMetadataDto {
-  @ApiProperty({ type: Number, example: 3 })
-  count!: number;
+// --- list endpoint query params + response metadata ------------------------
+
+/**
+ * Reusable `?page=&size=` query params for paginated list endpoints. Values
+ * arrive as strings on the query string; `TransformType` coerces them to
+ * numbers before validation, and the app-wide `ValidationPipe` (`transform:
+ * true`) fills in the defaults when a param is omitted.
+ */
+export class PaginationQueryDto {
+  @ApiPropertyOptional({
+    type: Number,
+    minimum: PaginationPage.Min,
+    default: PaginationPage.Min,
+    description: '1-based page number.',
+  })
+  @IsOptional()
+  @TransformType(() => Number)
+  @IsInt()
+  @Min(PaginationPage.Min)
+  page: number = PaginationPage.Min;
+
+  @ApiPropertyOptional({
+    type: Number,
+    minimum: PaginationSize.Min,
+    maximum: PaginationSize.Max,
+    default: PaginationSize.Default,
+    description: 'Rows per page.',
+  })
+  @IsOptional()
+  @TransformType(() => Number)
+  @IsInt()
+  @Min(PaginationSize.Min)
+  @Max(PaginationSize.Max)
+  size: number = PaginationSize.Default;
+}
+
+// `metadata.pagination` for paginated list endpoints. `total` is the number of
+// rows on the returned page (0 once the requested page is past the end), not a
+// grand count of all matching rows.
+export class PaginationInfoDto {
+  @ApiProperty({ type: Number, example: PaginationPage.Min })
+  page!: number;
+
+  @ApiProperty({ type: Number, example: PaginationSize.Default })
+  size!: number;
+
+  @ApiProperty({ type: Number, example: PaginationSize.Default })
+  total!: number;
+}
+
+// `metadata.sort` — the sort actually applied to the returned page.
+export class SortInfoDto {
+  @ApiProperty({ type: String, example: 'created_at' })
+  by!: string;
+
+  @ApiProperty({ enum: SortDirection, enumName: 'SortDirection' })
+  direction!: SortDirection;
+}
+
+// `metadata` shape for paginated, sortable list endpoints.
+export class PaginationMetadataDto {
+  @ApiProperty({ type: PaginationInfoDto })
+  pagination!: PaginationInfoDto;
+
+  @ApiProperty({ type: SortInfoDto })
+  sort!: SortInfoDto;
 }
 
 interface ApiSuccessResponseOptions {

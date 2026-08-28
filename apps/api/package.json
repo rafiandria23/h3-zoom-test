@@ -102,10 +102,10 @@
       },
       "dev": {
         "continuous": true,
-        "executor": "nx:noop",
-        "dependsOn": [
-          "serve"
-        ]
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "nx serve @rafiandria23/h3-zoom-test-api --configuration=development"
+        }
       },
       "test": {
         "options": {

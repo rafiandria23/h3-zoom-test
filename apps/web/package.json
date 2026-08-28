@@ -6,12 +6,12 @@
     "targets": {
       "dev": {
         "options": {
-          "command": "next dev -H ${WEB_HOST:-127.0.0.1} -p ${WEB_PORT:-4000}"
+          "args": "-H ${WEB_HOST:-127.0.0.1} -p ${WEB_PORT:-4000}"
         }
       },
       "start": {
         "options": {
-          "command": "next start -H ${WEB_HOST:-127.0.0.1} -p ${WEB_PORT:-4000}"
+          "args": "-H ${WEB_HOST:-127.0.0.1} -p ${WEB_PORT:-4000}"
         }
       }
     }

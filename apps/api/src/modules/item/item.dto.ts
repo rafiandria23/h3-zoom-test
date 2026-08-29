@@ -1,7 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
-  IsInt,
   IsString,
   IsNotEmpty,
   IsOptional,
@@ -9,10 +8,10 @@ import {
   type ValidationOptions,
   type ValidationArguments,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 import { PaginationQueryDto, SortDirection } from '../common';
 import { ContentType } from '../../generated/prisma/enums';
+import type { StoredFile } from '../file/file.service';
 
 // Processing status derived from the item's event log.
 export enum ItemStatus {
@@ -64,34 +63,32 @@ export class SubmitItemDto {
     description:
       'Required for text/long_text (string) and numeric (number); omitted for file.',
   })
-  // No `@Type()` coercion here: `value` is legitimately a string or a number,
-  // and the wire format (JSON) already carries that distinction. The custom
-  // validator below is what enforces the right runtime type per `content_type`.
+  // No coercion here: `value` is legitimately a string or a number, and the
+  // wire format (JSON) already carries that distinction. The custom validator
+  // below is what enforces the right runtime type per `content_type`.
   @IsOptional()
   @IsValidValueForContentType()
   value?: string | number;
 
-  // Populated by the MultipartInterceptor for `multipart/form-data` submissions.
-  // TODO(refactor): the raw multipart request carries a binary `file` part, not
-  // these fields — model that separately once the upload contract is firmed up.
-  @ApiPropertyOptional({ type: String })
+  // Only meaningful for `multipart/form-data` submissions, where it is the
+  // binary upload. `application/json` callers omit it. `MultipartInterceptor`
+  // consumes the file part out of band and never places it on `request.body`,
+  // so no runtime validation is attached — this property documents the
+  // multipart contract and nothing else.
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
+    description: 'The file to upload (multipart/form-data submissions only).',
+  })
   @IsOptional()
-  @IsString()
-  file_ref?: string;
-
-  @ApiPropertyOptional({ type: String, example: 'application/pdf' })
-  @IsOptional()
-  @IsString()
-  mime_type?: string;
-
-  @ApiPropertyOptional({ type: Number, example: 20480 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  size?: number;
+  file?: unknown;
 }
 
-export type CreateItemInput = SubmitItemDto;
+// `SubmitItemDto` is the client-supplied contract. For `multipart/form-data`
+// submissions `MultipartInterceptor` streams the `file` part to storage and
+// merges the resulting descriptor (`file_ref` / `mime_type` / `size`) into the
+// service input: those fields are server-derived and never sent by the client.
+export type CreateItemInput = SubmitItemDto & Partial<StoredFile>;
 
 // A persisted `items` row, as returned by `POST /items`.
 export class ItemDto {

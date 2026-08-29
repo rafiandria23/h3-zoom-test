@@ -23,7 +23,11 @@ import {
   PaginationMetadataDto,
   SSE_HEARTBEAT_INTERVAL_MS,
 } from '../common';
-import { MultipartInterceptor } from '../file/file.interceptor';
+import {
+  MultipartInterceptor,
+  StoredFileDescriptor,
+} from '../file/file.interceptor';
+import type { StoredFile } from '../file/file.service';
 
 import {
   ItemDto,
@@ -48,8 +52,11 @@ export class ItemController {
   @ApiConsumes('application/json', 'multipart/form-data')
   @ApiBody({ type: SubmitItemDto })
   @ApiSuccessResponse(ItemDto, { description: 'The created item.' })
-  submit(@Body() body: SubmitItemDto) {
-    return this.itemService.submitItem(body);
+  submit(
+    @Body() body: SubmitItemDto,
+    @StoredFileDescriptor() storedFile: Partial<StoredFile>,
+  ) {
+    return this.itemService.submitItem({ ...body, ...storedFile });
   }
 
   @Get('/')

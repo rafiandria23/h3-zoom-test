@@ -78,9 +78,8 @@ export type SubmitItemDto = {
   label: string;
   /** Required for text/long_text (string) and numeric (number); omitted for file. */
   value?: string | number;
-  file_ref?: string;
-  mime_type?: string;
-  size?: number;
+  /** The file to upload (multipart/form-data submissions only). */
+  file?: Blob;
 };
 export type ItemStatus = 'pending' | 'done';
 export type ItemResultDto = {

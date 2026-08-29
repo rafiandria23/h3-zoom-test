@@ -42,14 +42,20 @@ describe('SubmitItemDto (via the app-wide ValidationPipe)', () => {
 
   it('accepts a file submission with no value', async () => {
     await expect(
+      transform({ content_type: 'file', label: 'L' }),
+    ).resolves.toMatchObject({ content_type: 'file', label: 'L' });
+  });
+
+  it('strips server-derived file metadata a client tries to send', async () => {
+    await expect(
       transform({
         content_type: 'file',
         label: 'L',
-        file_ref: 's3://bucket/key',
+        file_ref: 'uploads/spoofed',
         mime_type: 'application/pdf',
         size: 20480,
       }),
-    ).resolves.toMatchObject({ file_ref: 's3://bucket/key', size: 20480 });
+    ).resolves.toEqual({ content_type: 'file', label: 'L' });
   });
 
   it('rejects a numeric submission whose value is not a number', async () => {

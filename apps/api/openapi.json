@@ -256,16 +256,10 @@
             ],
             "description": "Required for text/long_text (string) and numeric (number); omitted for file."
           },
-          "file_ref": {
-            "type": "string"
-          },
-          "mime_type": {
+          "file": {
             "type": "string",
-            "example": "application/pdf"
-          },
-          "size": {
-            "type": "number",
-            "example": 20480
+            "format": "binary",
+            "description": "The file to upload (multipart/form-data submissions only)."
           }
         },
         "required": [

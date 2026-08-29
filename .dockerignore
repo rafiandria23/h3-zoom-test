@@ -1,0 +1,40 @@
+# Build context is the workspace root (see apps/*/Dockerfile). Keep source and
+# manifests; drop everything that is regenerated inside the image.
+
+.git
+.github
+.vscode
+.idea
+
+node_modules
+**/node_modules
+
+# compiled / generated output — rebuilt in the image
+dist
+**/dist
+out-tsc
+**/out-tsc
+.next
+**/.next
+.swc
+**/.swc
+apps/api/src/generated
+apps/api/openapi.json
+
+# Nx / Yarn local caches
+.nx
+.yarn/install-state.gz
+
+# local runtime data
+docker/volumes
+uploads
+
+# tests / coverage / misc
+coverage
+**/*.tsbuildinfo
+*.log
+
+# env files — provided at runtime via compose, never baked into an image
+.env
+.env.*
+!.env.example

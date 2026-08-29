@@ -29,6 +29,10 @@ async function bootstrap() {
     methods: ['HEAD', 'GET', 'POST'],
   });
 
+  // Run lifecycle hooks (Prisma `$disconnect`, BullMQ `QueueEvents.close`) on
+  // SIGTERM/SIGINT — e.g. `docker stop` — instead of being killed mid-flight.
+  app.enableShutdownHooks();
+
   // Swagger UI at the root ('/'), outside the '/api/v1' prefix. Disabled in
   // production. The same document definition feeds the `openapi` target.
   if (process.env.NODE_ENV !== NodeEnv.Production) {

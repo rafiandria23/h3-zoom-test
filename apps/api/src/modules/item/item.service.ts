@@ -89,7 +89,10 @@ export class ItemService implements OnModuleInit, OnModuleDestroy {
 
     await this.itemsQueue.add('process', { itemId: item.id });
 
-    return this.commonService.successTimestamp({ data: item });
+    // `size` is a `bigint` off the wire; the JSON serializer can't handle it.
+    return this.commonService.successTimestamp({
+      data: { ...item, size: toNumberOrNull(item.size) },
+    });
   }
 
   public async listItems(query: ListItemsQueryDto) {
@@ -119,7 +122,7 @@ export class ItemService implements OnModuleInit, OnModuleDestroy {
         value: item.value,
         file_ref: item.file_ref,
         mime_type: item.mime_type,
-        size: item.size,
+        size: toNumberOrNull(item.size),
         created_at: item.created_at,
         status: processed ? 'done' : 'pending',
         result: processed?.payload ?? null,
@@ -207,4 +210,14 @@ export class ItemService implements OnModuleInit, OnModuleDestroy {
       },
     });
   }
+}
+
+/**
+ * Narrows a persisted `size` (`bigint | null`) to the API's `number | null`.
+ * File byte counts stay well under `Number.MAX_SAFE_INTEGER` (~9 PB), so the
+ * conversion is lossless in practice; the `bigint` exists only so Postgres can
+ * store values past `integer`'s 2^31 range.
+ */
+function toNumberOrNull(size: bigint | null): number | null {
+  return size === null ? null : Number(size);
 }

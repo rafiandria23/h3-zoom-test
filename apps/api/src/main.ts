@@ -18,7 +18,15 @@ async function bootstrap() {
     new FastifyAdapter({ logger: true }),
   );
 
-  await app.register(multipart);
+  // `@fastify/multipart` falls back to Fastify's `bodyLimit` (1 MiB) for
+  // `fileSize` when no limit is given, and rejects larger parts with
+  // `FST_REQ_FILE_TOO_LARGE`. Pass `Infinity` to actually run uncapped.
+  await app.register(multipart, {
+    limits: {
+      fileSize: Infinity,
+      fieldSize: Infinity,
+    },
+  });
 
   const configService = app.get(ConfigService);
 

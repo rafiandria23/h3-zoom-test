@@ -32,7 +32,9 @@ model Item {
   value        Json?
   file_ref     String?
   mime_type    String?
-  size         Int?
+  // `bigint`, not `int`: uploads are uncapped, so a byte count can exceed
+  // `integer`'s 2^31 range. Serialized back to a JS number at the API boundary.
+  size         BigInt?
 
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt

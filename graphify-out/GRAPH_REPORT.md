@@ -1,17 +1,17 @@
 # Graph Report - h3-zoom-test  (2026-11-21)
 
 ## Corpus Check
-- 128 files · ~26,477 words
+- 128 files · ~26,479 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 22 file(s) not represented in the graph (top: (none) 11, .scss 4, .swcrc 3)
 
 ## Summary
-- 1194 nodes · 1815 edges · 103 communities (74 shown, 29 thin omitted)
+- 1196 nodes · 1817 edges · 105 communities (76 shown, 29 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 23 edges (avg confidence: 0.84)
 - Token cost: 69,498 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e03dbcb9`
+- Built from commit: `ae612d2f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -32,14 +32,14 @@
 - ItemForm
 - Root Nx Plugin Deps
 - Root Dev Tooling Deps
-- Nest Module Wiring
-- Item List & Stream Badge
+- api/package.json
+- item-list.tsx
 - item-form.tsx
 - Base TS Compiler Options
 - Item Controller Endpoints
 - API E2E Project
 - Compose API Environment
-- api/package.json
+- dependencies
 - Nx Workspace Config
 - Item Service & SSE Stream
 - API Bootstrap & OpenAPI
@@ -80,7 +80,7 @@
 - Root Jest Preset
 - Root TS Project Refs
 - Copy Workspace Modules Target
-- API Client TS Refs
+- tsconfig.base.json
 - E2E Global Setup/Teardown
 - MockXhr
 - renovate.json
@@ -109,8 +109,8 @@
 - Infinite Items Query Export
 - sonar
 - steps
-- LogLevel
-- app.module.ts
+- SuccessTimestampDto
+- layout.tsx
 - with
 - CLAUDE.md
 - build
@@ -118,10 +118,12 @@
 - test
 - on
 - concurrency
+- web/tsconfig.json
+- next.config.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `ItemService` - 20 edges
-2. `@nestjs/common` - 20 edges
+1. `@nestjs/common` - 20 edges
+2. `ItemService` - 20 edges
 3. `compilerOptions` - 20 edges
 4. `compilerOptions` - 19 edges
 5. `environment` - 18 edges
@@ -151,7 +153,7 @@
 - **Item Submit -> Queue -> Process -> SSE Flow** — readme_items_api, readme_prisma_postgresql, readme_bullmq_worker, readme_redis, readme_itemservice_scoreitem, readme_sse_event_stream [EXTRACTED 1.00]
 - **Tier 1 Top-Five Stabilisation Changes** — analysis_version_control, analysis_stateless_vm, analysis_monitoring_alerting, analysis_ci_cd_pipeline, analysis_terraform_iac [EXTRACTED 1.00]
 
-## Communities (103 total, 29 thin omitted)
+## Communities (105 total, 29 thin omitted)
 
 ### Community 0 - "web/package.json"
 Cohesion: 0.05
@@ -162,12 +164,12 @@ Cohesion: 0.07
 Nodes (49): Health-checked Deploy with Automatic Rollback, CI/CD Pipeline with Automated Tests, CloudWatch Metrics and Alarms, Containerised Deploy (Docker Compose on Single VM), ECS/Fargate (Tier 2 Ceiling), External Uptime Check (UptimeRobot / Healthchecks.io), Managed ElastiCache (Redis) for Cache/Sessions/Queue, Managed RDS Database (+41 more)
 
 ### Community 2 - "API Config & Constants"
-Cohesion: 0.10
-Nodes (19): NodeEnv, Development, Production, Test, PaginationPage, Min, PaginationSize, Default (+11 more)
+Cohesion: 0.07
+Nodes (30): LogLevel, Debug, Error, Fatal, Info, Trace, Warn, NodeEnv (+22 more)
 
 ### Community 3 - "SSE Item Events Transport"
-Cohesion: 0.09
-Nodes (22): ITEM_EVENT_NAMES, ItemEventFrame, ItemEventsTransport, nextConnectionStatus(), openInert(), openItemEventsTransport(), RECONNECT_ATTEMPTS_BEFORE_STALE, SHARED_WORKER_PROBE_MS (+14 more)
+Cohesion: 0.08
+Nodes (25): StreamBadgeProps, ITEM_EVENT_NAMES, ItemEventFrame, ItemEventsTransport, nextConnectionStatus(), openInert(), openItemEventsTransport(), RECONNECT_ATTEMPTS_BEFORE_STALE (+17 more)
 
 ### Community 4 - "API Client Nx Targets"
 Cohesion: 0.06
@@ -175,39 +177,39 @@ Nodes (34): cache, dependsOn, executor, inputs, options, outputs, dependencies, 
 
 ### Community 5 - "ref_react"
 Cohesion: 0.12
-Nodes (18): Index(), ResizeObserverStub, submitTrigger, Accordion(), AccordionEntry, AccordionProps, DetailList(), DetailListEntry (+10 more)
+Nodes (17): ResizeObserverStub, submitTrigger, Accordion(), AccordionEntry, AccordionProps, DetailList(), DetailListEntry, DetailListProps (+9 more)
 
 ### Community 6 - "Multipart File Upload Interceptor"
-Cohesion: 0.10
-Nodes (13): rxjs@^7.8.0, MultipartInterceptor, MultipartRequest, buildInterceptor(), next, Part, stored, StoredFileDescriptor (+5 more)
+Cohesion: 0.11
+Nodes (13): rxjs@^7.8.0, MultipartInterceptor, MultipartRequest, buildInterceptor(), next, Part, stored, FileModule (+5 more)
 
 ### Community 7 - "Health Check Controller"
-Cohesion: 0.16
-Nodes (6): AppController, AppService, SuccessTimestampDto, CommonService, @nestjs/common, @nestjs/testing
+Cohesion: 0.14
+Nodes (9): AppController, AppService, CommonModule, CommonService, DatabaseModule, ItemModule, @nestjs/bullmq, @nestjs/common (+1 more)
 
 ### Community 8 - "Item DTOs & Pagination"
 Cohesion: 0.11
-Nodes (17): SortDirection, Asc, Desc, StoredFile, IsValidValueForContentType(), ItemDto, ItemListEntryDto, ItemResultDto (+9 more)
+Nodes (16): SortDirection, Asc, Desc, IsValidValueForContentType(), ItemDto, ItemListEntryDto, ItemResultDto, ItemSortField (+8 more)
 
 ### Community 9 - "RTK Query API Client"
 Cohesion: 0.13
 Nodes (16): baseApi, addTagTypes, ItemControllerListApiArg, ItemControllerListApiResponse, ItemControllerSubmitApiArg, ItemControllerSubmitApiResponse, ItemDto, ItemSortField (+8 more)
 
 ### Community 10 - "Web TS Config"
-Cohesion: 0.08
-Nodes (23): compilerOptions, allowJs, allowSyntheticDefaultImports, emitDeclarationOnly, esModuleInterop, forceConsistentCasingInFileNames, incremental, jsx (+15 more)
+Cohesion: 0.11
+Nodes (19): compilerOptions, allowJs, allowSyntheticDefaultImports, emitDeclarationOnly, esModuleInterop, forceConsistentCasingInFileNames, incremental, jsx (+11 more)
 
 ### Community 11 - "Prisma Database Service"
-Cohesion: 0.14
-Nodes (7): SSE_EVENT_REPLAY_PAGE_SIZE, createPrismaAdapter(), DatabaseService, CLIENT_EVENT_NAMES, CLIENT_MESSAGE_DATA_KEYS, buildService(), FindManyArgs
+Cohesion: 0.15
+Nodes (6): SSE_EVENT_REPLAY_PAGE_SIZE, createPrismaAdapter(), DatabaseService, CLIENT_EVENT_NAMES, CLIENT_MESSAGE_DATA_KEYS, FindManyArgs
 
 ### Community 12 - "Root Layout & Redux Store"
-Cohesion: 0.16
-Nodes (12): metadata, RootLayout(), RootLayoutProps, StoreProvider(), StoreProviderProps, useAppDispatch, useAppSelector, useAppStore (+4 more)
+Cohesion: 0.17
+Nodes (10): StoreProviderProps, Listener, Store, useAppDispatch, useAppSelector, useAppStore, AppDispatch, AppStore (+2 more)
 
 ### Community 13 - "ItemForm"
-Cohesion: 0.11
-Nodes (12): formatBytes(), ItemForm(), acceptFile(), onDrop(), onDropzoneKeyDown(), openFilePicker(), RequiredLabel(), renderForm() (+4 more)
+Cohesion: 0.15
+Nodes (7): @testing-library/react@16.3.0, renderForm(), resetUpload, ResizeObserverStub, submitTrigger, uploadFile, @testing-library/react
 
 ### Community 14 - "Root Nx Plugin Deps"
 Cohesion: 0.10
@@ -217,25 +219,25 @@ Nodes (20): jest-environment-node@~30.3.0, @nestjs/schematics@^11.0.0, @nx/nest@
 Cohesion: 0.10
 Nodes (21): devDependencies, babel-jest@~30.3.0, @eslint/js@^9.8.0, jest-util@~30.3.0, prettier@^3.8.1, prisma@7.10.0, @swc/helpers@0.5.18, ts-jest@^29.4.7 (+13 more)
 
-### Community 16 - "Nest Module Wiring"
-Cohesion: 0.21
-Nodes (6): bullmq@^6.3.0, @nestjs/bullmq@^11.0.5, DatabaseModule, ItemsProcessor, bullmq, @nestjs/bullmq
+### Community 16 - "api/package.json"
+Cohesion: 0.16
+Nodes (13): @fastify/multipart@^10.1.1, ioredis@^5.11.1, devDependencies, @nestjs/testing@^11.0.0, @types/lodash@^4, @types/pg@^8.23.1, name, private (+5 more)
 
-### Community 17 - "Item List & Stream Badge"
+### Community 17 - "item-list.tsx"
 Cohesion: 0.17
-Nodes (9): dedupeById(), ItemList(), STREAM_BADGE, StreamBadge(), StreamBadgeProps, SseStatus, Listener, Store (+1 more)
+Nodes (11): Index(), ItemForm(), acceptFile(), onDrop(), onDropzoneKeyDown(), openFilePicker(), dedupeById(), ItemList() (+3 more)
 
 ### Community 18 - "item-form.tsx"
-Cohesion: 0.14
-Nodes (13): CONTENT_TYPE_OPTIONS, DEFAULT_VALUES, itemFormSchema, ItemFormValues, Handler, Store, UploadItemArgs, UploadStatus (+5 more)
+Cohesion: 0.12
+Nodes (15): CONTENT_TYPE_OPTIONS, DEFAULT_VALUES, formatBytes(), itemFormSchema, ItemFormValues, RequiredLabel(), Handler, Store (+7 more)
 
 ### Community 19 - "Base TS Compiler Options"
 Cohesion: 0.10
 Nodes (20): compilerOptions, composite, customConditions, declarationMap, emitDeclarationOnly, importHelpers, isolatedModules, lib (+12 more)
 
 ### Community 20 - "Item Controller Endpoints"
-Cohesion: 0.12
-Nodes (4): ApiSuccessResponse(), ItemController, CreateItemInput, toNumberOrNull()
+Cohesion: 0.14
+Nodes (3): ApiSuccessResponse(), StoredFileDescriptor, ItemController
 
 ### Community 21 - "API E2E Project"
 Cohesion: 0.11
@@ -245,13 +247,17 @@ Nodes (16): devDependencies, axios@^1.6.0, dependsOn, executor, options, outputs
 Cohesion: 0.14
 Nodes (18): environment, API_HOST, API_PORT, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER (+10 more)
 
-### Community 23 - "api/package.json"
-Cohesion: 0.09
-Nodes (29): dependencies, class-validator@^0.15.1, @fastify/multipart@^10.1.1, @fastify/static@^8.3.0, ioredis@^5.11.1, lodash@^4.18.1, @nestjs/common@^11.0.0, @nestjs/config@^4.0.4 (+21 more)
+### Community 23 - "dependencies"
+Cohesion: 0.12
+Nodes (17): dependencies, bullmq@^6.3.0, @fastify/static@^8.3.0, lodash@^4.18.1, @nestjs/bullmq@^11.0.5, @nestjs/common@^11.0.0, @nestjs/config@^4.0.4, pg@^8.23.0 (+9 more)
 
 ### Community 24 - "Nx Workspace Config"
 Cohesion: 0.10
 Nodes (19): analytics, linter, style, generators, @nx/next, options, namedInputs, default (+11 more)
+
+### Community 25 - "Item Service & SSE Stream"
+Cohesion: 0.09
+Nodes (7): apiConfig, dbConfig, redisConfig, parseCursor(), ItemsProcessor, ItemService, buildService()
 
 ### Community 26 - "API Bootstrap & OpenAPI"
 Cohesion: 0.19
@@ -266,12 +272,12 @@ Cohesion: 0.11
 Nodes (17): description, name, runs, steps, using, id, name, run (+9 more)
 
 ### Community 29 - "common.util.ts"
-Cohesion: 0.17
-Nodes (10): class-transformer@^0.5.1, reflect-metadata@^0.2.0, envFilePaths, findWorkspaceRoot(), resolveEnvFilePaths(), validateEnv(), { join }, nextConfig (+2 more)
+Cohesion: 0.21
+Nodes (10): class-transformer@^0.5.1, class-validator@^0.15.1, reflect-metadata@^0.2.0, envFilePaths, findWorkspaceRoot(), resolveEnvFilePaths(), validateEnv(), class-transformer (+2 more)
 
 ### Community 30 - "Item Event Type Guards"
-Cohesion: 0.23
-Nodes (11): ItemResultDto, isItemEventData(), isItemResult(), ITEM_EVENT, ItemEvent, ItemEventData, ItemEventName, ItemProcessedEvent (+3 more)
+Cohesion: 0.26
+Nodes (10): ItemResultDto, isItemEventData(), isItemResult(), ITEM_EVENT, ItemEvent, ItemEventData, ItemProcessedEvent, ItemSubmittedEvent (+2 more)
 
 ### Community 31 - "ESLint Configs"
 Cohesion: 0.18
@@ -282,8 +288,8 @@ Cohesion: 0.17
 Nodes (11): compilerOptions, emitDecoratorMetadata, experimentalDecorators, outDir, rootDir, target, tsBuildInfoFile, types (+3 more)
 
 ### Community 33 - "item-list.spec.tsx"
-Cohesion: 0.17
-Nodes (6): @testing-library/react@16.3.0, fetchNextPage, mockHook, renderList(), ResizeObserverStub, @testing-library/react
+Cohesion: 0.20
+Nodes (4): fetchNextPage, mockHook, renderList(), ResizeObserverStub
 
 ### Community 34 - "Compose Migrate Service"
 Cohesion: 0.17
@@ -326,19 +332,19 @@ Cohesion: 0.20
 Nodes (9): compilerOptions, forceConsistentCasingInFileNames, module, moduleResolution, outDir, types, extends, include (+1 more)
 
 ### Community 44 - "SWC Jest Configs"
-Cohesion: 0.22
-Nodes (5): swcJestConfig, { readFileSync }, swcJestConfig, { readFileSync }, swcJestConfig
+Cohesion: 0.20
+Nodes (6): { readFileSync }, swcJestConfig, { readFileSync }, swcJestConfig, { readFileSync }, swcJestConfig
 
 ### Community 45 - "API E2E TS Config"
-Cohesion: 0.22
-Nodes (8): compilerOptions, esModuleInterop, noImplicitAny, noUnusedLocals, outDir, extends, include, references
+Cohesion: 0.40
+Nodes (5): compilerOptions, esModuleInterop, noImplicitAny, noUnusedLocals, outDir
 
 ### Community 46 - "API Serve Configurations"
 Cohesion: 0.25
 Nodes (9): configurations, executor, options, development, buildTarget, env, NODE_ENV, env (+1 more)
 
 ### Community 47 - "API Spec TS Config"
-Cohesion: 0.20
+Cohesion: 0.22
 Nodes (8): compilerOptions, emitDecoratorMetadata, experimentalDecorators, outDir, types, extends, include, references
 
 ### Community 48 - "Web E2E TS Config"
@@ -401,13 +407,13 @@ Nodes (5): compileOnSave, compilerOptions, extends, files, references
 Cohesion: 0.40
 Nodes (5): cache, dependsOn, executor, outputs, copy-workspace-modules
 
-### Community 64 - "API Client TS Refs"
-Cohesion: 0.40
-Nodes (4): extends, files, include, references
+### Community 64 - "tsconfig.base.json"
+Cohesion: 0.20
+Nodes (7): extends, include, references, extends, files, include, references
 
 ### Community 67 - "renovate.json"
-Cohesion: 0.12
-Nodes (16): config:best-practices, extends, internalChecksFilter, labels, lockFileMaintenance, automerge, enabled, schedule (+8 more)
+Cohesion: 0.11
+Nodes (17): config:best-practices, extends, ignorePresets, internalChecksFilter, labels, lockFileMaintenance, automerge, enabled (+9 more)
 
 ### Community 92 - "sonar"
 Cohesion: 0.22
@@ -417,13 +423,13 @@ Nodes (9): SONAR_TOKEN, sonar, if, name, needs, runs-on, steps, timeout-minutes 
 Cohesion: 0.43
 Nodes (8): steps, steps, steps, if, name, run, uses, steps
 
-### Community 94 - "LogLevel"
-Cohesion: 0.29
-Nodes (7): LogLevel, Debug, Error, Fatal, Info, Trace, Warn
+### Community 94 - "SuccessTimestampDto"
+Cohesion: 0.24
+Nodes (3): SuccessTimestampDto, CreateItemInput, toNumberOrNull()
 
-### Community 95 - "app.module.ts"
-Cohesion: 0.19
-Nodes (9): apiConfig, dbConfig, redisConfig, RADIX, SSE_HEARTBEAT_INTERVAL_MS, CommonModule, ItemModule, lodash (+1 more)
+### Community 95 - "layout.tsx"
+Cohesion: 0.32
+Nodes (4): metadata, RootLayout(), RootLayoutProps, StoreProvider()
 
 ### Community 96 - "with"
 Cohesion: 0.29
@@ -449,17 +455,21 @@ Nodes (4): on, pull_request, push, branches
 Cohesion: 0.67
 Nodes (3): concurrency, cancel-in-progress, group
 
+### Community 103 - "web/tsconfig.json"
+Cohesion: 0.40
+Nodes (4): exclude, extends, include, references
+
 ## Knowledge Gaps
-- **31 isolated node(s):** `Debug`, `Error`, `Fatal`, `Info`, `Trace` (+26 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 525 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **31 isolated node(s):** `Min`, `Min`, `Default`, `Asc`, `Desc` (+26 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 527 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **29 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `prisma` connect `Root Dev Tooling Deps` to `prisma.config.ts`, `Root Nx Plugin Deps`?**
-  _High betweenness centrality (0.044) - this node is a cross-community bridge._
-- **What connects `Debug`, `Error`, `Fatal` to the rest of the system?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **What connects `Min`, `Min`, `Default` to the rest of the system?**
   _31 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `web/package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.050980392156862744 - nodes in this community are weakly interconnected._
@@ -470,4 +480,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `nx` connect `API Test & Prune Targets` to `api/package.json`?**
   _High betweenness centrality (0.030) - this node is a cross-community bridge._
 - **Should `API Config & Constants` be split into smaller, more focused modules?**
-  _Cohesion score 0.09852216748768473 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07272727272727272 - nodes in this community are weakly interconnected._

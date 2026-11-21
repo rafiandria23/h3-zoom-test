@@ -1,24 +1,54 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:best-practices", "schedule:weekly"],
+  "extends": ["config:best-practices"],
+  "timezone": "UTC",
+  "schedule": ["before 6am on monday"],
   "labels": ["dependencies"],
   "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
   "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "labels": ["dependencies", "security"]
+  },
   "lockFileMaintenance": {
     "enabled": true,
-    "automerge": true
+    "automerge": true,
+    "schedule": ["before 6am on monday"]
   },
   "packageRules": [
     {
       "description": "Automerge non-breaking updates for stable (>=1.0) packages once CI passes",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "matchCurrentVersion": "!/^0/",
+      "matchCurrentVersion": "!/^[~^]?0\\./",
       "automerge": true
+    },
+    {
+      "description": "Flag major updates for manual review",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major"]
     },
     {
       "description": "Nx updates ship code migrations; apply them manually via `nx migrate`",
       "matchPackageNames": ["nx", "@nx/**"],
+      "groupName": "nx",
       "automerge": false
+    },
+    {
+      "description": "Keep all NestJS packages in lockstep",
+      "matchPackageNames": ["@nestjs/**"],
+      "groupName": "nestjs"
+    },
+    {
+      "description": "Prisma CLI and client must stay on the same version",
+      "matchPackageNames": ["prisma", "@prisma/**"],
+      "groupName": "prisma"
+    },
+    {
+      "description": "Major database/cache image upgrades need a data migration; require explicit approval",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["postgres", "redis"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
     }
   ]
 }

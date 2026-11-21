@@ -11,7 +11,7 @@
 - Token cost: 69,498 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ae612d2f`
+- Built from commit: `cb60f9b3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -213,7 +213,7 @@ Nodes (7): @testing-library/react@16.3.0, renderForm(), resetUpload, ResizeObser
 
 ### Community 14 - "Root Nx Plugin Deps"
 Cohesion: 0.10
-Nodes (20): jest-environment-node@~30.3.0, @nestjs/schematics@^11.0.0, @nx/nest@23.1.1, @nx/next@23.1.1, @swc/cli@~0.8.1, ts-node@10.9.1, webpack-dev-server@^5.2.1, license (+12 more)
+Nodes (20): jest-environment-node@~30.3.0, @nestjs/schematics@^11.0.0, @nx/nest@23.2.1, @nx/next@23.2.1, @swc/cli@~0.8.1, ts-node@10.9.1, webpack-dev-server@^5.2.1, license (+12 more)
 
 ### Community 15 - "Root Dev Tooling Deps"
 Cohesion: 0.10
@@ -281,7 +281,7 @@ Nodes (10): ItemResultDto, isItemEventData(), isItemResult(), ITEM_EVENT, ItemEv
 
 ### Community 31 - "ESLint Configs"
 Cohesion: 0.18
-Nodes (6): eslint-plugin-playwright@^1.6.2, @next/eslint-plugin-next@^16.1.6, @nx/eslint-plugin@23.1.1, eslint-plugin-playwright, @next/eslint-plugin-next, @nx/eslint-plugin
+Nodes (6): eslint-plugin-playwright@^1.6.2, @next/eslint-plugin-next@^16.1.6, @nx/eslint-plugin@23.2.1, eslint-plugin-playwright, @next/eslint-plugin-next, @nx/eslint-plugin
 
 ### Community 32 - "API App TS Config"
 Cohesion: 0.17
@@ -365,7 +365,7 @@ Nodes (7): compilerOptions, outDir, tsBuildInfoFile, extends, files, include, re
 
 ### Community 53 - "Playwright E2E Setup"
 Cohesion: 0.25
-Nodes (6): @nx/devkit@23.1.1, @nx/playwright@23.1.1, @playwright/test@^1.37.0, @nx/devkit, @nx/playwright, @playwright/test
+Nodes (6): @nx/devkit@23.2.1, @nx/playwright@23.2.1, @playwright/test@^1.37.0, @nx/devkit, @nx/playwright, @playwright/test
 
 ### Community 54 - "Compose Services Root"
 Cohesion: 0.25
@@ -389,7 +389,7 @@ Nodes (6): cache, dependsOn, executor, inputs, outputs, openapi
 
 ### Community 59 - "API Webpack Config"
 Cohesion: 0.33
-Nodes (4): { join }, { NxAppWebpackPlugin }, @nx/webpack@23.1.1, @nx/webpack
+Nodes (4): { join }, { NxAppWebpackPlugin }, @nx/webpack@23.2.1, @nx/webpack
 
 ### Community 60 - "Web E2E Package"
 Cohesion: 0.33
@@ -397,7 +397,7 @@ Nodes (5): name, nx, implicitDependencies, private, version
 
 ### Community 61 - "Root Jest Preset"
 Cohesion: 0.33
-Nodes (4): jest@~30.3.0, @nx/jest@23.1.1, jest, @nx/jest
+Nodes (4): jest@~30.3.0, @nx/jest@23.2.1, jest, @nx/jest
 
 ### Community 62 - "Root TS Project Refs"
 Cohesion: 0.33
@@ -468,7 +468,7 @@ Nodes (4): exclude, extends, include, references
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `prisma` connect `Root Dev Tooling Deps` to `prisma.config.ts`, `Root Nx Plugin Deps`?**
-  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
 - **What connects `Min`, `Min`, `Default` to the rest of the system?**
   _31 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `web/package.json` be split into smaller, more focused modules?**

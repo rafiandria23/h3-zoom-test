@@ -35,13 +35,13 @@ Effort is given as a t-shirt size plus rough calendar time for one engineer.
 
 ## The plan — top five, in order
 
-| # | Change | Effort | Added cost | Risk removed |
-| --- | --- | --- | --- | --- |
-| 1 | Put the code in version control (Git + hosted repo + PR checks) | **S** — hours to 1 day | $0 | Total, unrecoverable loss of the codebase; no history, review, or rollback |
-| 2 | Make the VM stateless: move database, cache and uploads to managed services | **M** — 1–2 days incl. cutover | ~$35–55/mo | Catastrophic customer-data loss; DB dying with the VM; manual backup/patch burden |
-| 3 | Monitoring and alerting | **S–M** — 1–2 days | $0–10/mo | Silent outages; blind resource exhaustion; unseen client-side breakage |
-| 4 | Repeatable releases: CI/CD with automated tests + containerised deploy | **M** — 3–5 days | $0 | Deploy-induced outages; "works on my machine"; un-repeatable release steps |
-| 5 | Infrastructure as code + secrets management + patching + runbook | **M** — 3–5 days | $0 | The unrebuildable, one-person-only server; config drift; secret leakage; unpatched CVEs |
+| #   | Change                                                                      | Effort                         | Added cost | Risk removed                                                                            |
+| --- | --------------------------------------------------------------------------- | ------------------------------ | ---------- | --------------------------------------------------------------------------------------- |
+| 1   | Put the code in version control (Git + hosted repo + PR checks)             | **S** — hours to 1 day         | $0         | Total, unrecoverable loss of the codebase; no history, review, or rollback              |
+| 2   | Make the VM stateless: move database, cache and uploads to managed services | **M** — 1–2 days incl. cutover | ~$35–55/mo | Catastrophic customer-data loss; DB dying with the VM; manual backup/patch burden       |
+| 3   | Monitoring and alerting                                                     | **S–M** — 1–2 days             | $0–10/mo   | Silent outages; blind resource exhaustion; unseen client-side breakage                  |
+| 4   | Repeatable releases: CI/CD with automated tests + containerised deploy      | **M** — 3–5 days               | $0         | Deploy-induced outages; "works on my machine"; un-repeatable release steps              |
+| 5   | Infrastructure as code + secrets management + patching + runbook            | **M** — 3–5 days               | $0         | The unrebuildable, one-person-only server; config drift; secret leakage; unpatched CVEs |
 
 ### 1. Put the code in version control
 

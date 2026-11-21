@@ -156,7 +156,9 @@ describe('useItemEvents', () => {
     expect(MockEventSource.instances[0].url).toMatch(
       /\/api\/v1\/items\/events$/,
     );
-    expect(MockEventSource.instances[0].init).toEqual({ withCredentials: true });
+    expect(MockEventSource.instances[0].init).toEqual({
+      withCredentials: true,
+    });
   });
 
   it('applies an item_processed event straight to the cached row', () => {

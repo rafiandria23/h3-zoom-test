@@ -10,7 +10,8 @@ import {
   type SseStatus,
 } from './item-events-transport';
 
-type InboundMessage = { kind: 'subscribe'; url: string } | { kind: 'unsubscribe' };
+type InboundMessage =
+  { kind: 'subscribe'; url: string } | { kind: 'unsubscribe' };
 
 interface EventSourceLike {
   readyState: number;

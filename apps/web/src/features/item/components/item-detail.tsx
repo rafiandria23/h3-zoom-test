@@ -30,7 +30,10 @@ export const ItemDetail: FC<ItemDetailProps> = ({ item }) => {
           ...(item.size != null
             ? [{ label: 'Size', value: `${item.size} bytes` }]
             : []),
-          { label: 'Created', value: new Date(item.created_at).toLocaleString() },
+          {
+            label: 'Created',
+            value: new Date(item.created_at).toLocaleString(),
+          },
           {
             label: 'Score',
             value: item.result ? String(item.result.score) : '—',

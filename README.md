@@ -1,5 +1,9 @@
 # H3 Zoom Test
 
+[![CI](https://github.com/rafiandria23/h3-zoom-test/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rafiandria23/h3-zoom-test/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rafiandria23_h3-zoom-test&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=rafiandria23_h3-zoom-test)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rafiandria23_h3-zoom-test&metric=coverage)](https://sonarcloud.io/summary/new_code?id=rafiandria23_h3-zoom-test)
+
 A small full‑stack "submit an item, watch it get processed" application, built as an
 [Nx](https://nx.dev) monorepo.
 

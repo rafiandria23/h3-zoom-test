@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NX_DAEMON: false
+  NX_NO_CLOUD: true
+
+jobs:
+  lint-and-typecheck:
+    name: Lint, typecheck & format
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # prisma.config.ts needs DB_* even for `generate`; the generated client
+      # (apps/api/src/generated) is gitignored but imported by the api.
+      - run: cp .env.example .env
+      - run: yarn nx run @rafiandria23/h3-zoom-test-api:prisma -- generate
+      - run: yarn nx format:check --all
+      - run: yarn nx run-many -t lint typecheck
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: cp .env.example .env
+      - run: yarn nx run @rafiandria23/h3-zoom-test-api:prisma -- generate
+      - run: yarn nx run-many -t test --coverage
+      - name: Upload coverage
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: coverage
+          path: |
+            apps/api/test-output/jest/coverage/lcov.info
+            libs/api-client/test-output/jest/coverage/lcov.info
+            coverage/apps/web/lcov.info
+          if-no-files-found: error
+          retention-days: 7
+
+  sonar:
+    name: SonarCloud
+    needs: test
+    # Fork PRs get no secrets, so SONAR_TOKEN would be empty there.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0 # full history for blame and new-code detection
+          persist-credentials: false
+      - name: Download coverage
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: coverage
+      - name: Scan
+        uses: SonarSource/sonarqube-scan-action@v8.5.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build:
+    name: Build & contract drift
+    needs: [lint-and-typecheck, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: cp .env.example .env
+      - run: yarn nx run @rafiandria23/h3-zoom-test-api:prisma -- generate
+      - run: yarn nx run-many -t build
+      # Regenerates apps/api/openapi.json and the RTK Query client from the
+      # built API; any diff means the committed contract is stale.
+      - name: Check OpenAPI / API client drift
+        run: |
+          yarn nx run @rafiandria23/h3-zoom-test-api-client:codegen
+          git diff --exit-code -- apps/api/openapi.json libs/api-client/src/lib/generated.ts
+
+  e2e:
+    name: API e2e
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Runs the real API image against Postgres + Redis; `migrate` must exit
+      # 0 and `api` must pass its healthcheck before tests start.
+      - name: Start stack
+        run: docker compose up --detach --build --wait --wait-timeout 300 api
+      # The stack replaces `api:serve`, so skip the target's build/serve deps.
+      - run: yarn nx e2e @rafiandria23/h3-zoom-test-api-e2e --excludeTaskDependencies
+      - name: Stack logs
+        if: failure()
+        run: docker compose logs

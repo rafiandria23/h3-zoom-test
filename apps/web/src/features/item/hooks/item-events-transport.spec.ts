@@ -92,12 +92,10 @@ class FakeSharedWorker {
 }
 
 const originalEventSource = global.EventSource;
-const originalSharedWorker = (global as { SharedWorker?: unknown }).SharedWorker;
+const originalSharedWorker = (global as { SharedWorker?: unknown })
+  .SharedWorker;
 
-function setGlobals(next: {
-  EventSource?: unknown;
-  SharedWorker?: unknown;
-}) {
+function setGlobals(next: { EventSource?: unknown; SharedWorker?: unknown }) {
   (global as { EventSource?: unknown }).EventSource = next.EventSource;
   (global as { SharedWorker?: unknown }).SharedWorker = next.SharedWorker;
 }
@@ -134,7 +132,10 @@ describe('createItemEventsHub', () => {
 
     expect(created).toHaveLength(1);
 
-    created[0].emitFrame('item_processed', { item_id: 'x', payload: { score: 1 } });
+    created[0].emitFrame('item_processed', {
+      item_id: 'x',
+      payload: { score: 1 },
+    });
 
     const frameFor = (port: FakeMessagePort) =>
       port.postMessage.mock.calls
@@ -221,7 +222,10 @@ describe('createItemEventsHub', () => {
 
 describe('openItemEventsTransport', () => {
   it('prefers a SharedWorker: subscribes, pipes messages, unsubscribes on close', () => {
-    setGlobals({ EventSource: FakeEventSource, SharedWorker: FakeSharedWorker });
+    setGlobals({
+      EventSource: FakeEventSource,
+      SharedWorker: FakeSharedWorker,
+    });
     const onFrame = jest.fn();
     const onStatus = jest.fn();
 
@@ -243,10 +247,15 @@ describe('openItemEventsTransport', () => {
       kind: 'frame',
       frame: { type: 'item_processed', data: '{}' },
     });
-    expect(onFrame).toHaveBeenCalledWith({ type: 'item_processed', data: '{}' });
+    expect(onFrame).toHaveBeenCalledWith({
+      type: 'item_processed',
+      data: '{}',
+    });
 
     transport.close();
-    expect(worker.port.postMessage).toHaveBeenCalledWith({ kind: 'unsubscribe' });
+    expect(worker.port.postMessage).toHaveBeenCalledWith({
+      kind: 'unsubscribe',
+    });
     expect(worker.port.close).toHaveBeenCalled();
   });
 
@@ -258,7 +267,9 @@ describe('openItemEventsTransport', () => {
     const transport = openItemEventsTransport('/events', { onFrame, onStatus });
 
     expect(FakeEventSource.instances).toHaveLength(1);
-    expect(FakeEventSource.instances[0].init).toEqual({ withCredentials: true });
+    expect(FakeEventSource.instances[0].init).toEqual({
+      withCredentials: true,
+    });
     expect(onStatus).toHaveBeenCalledWith('connecting');
 
     FakeEventSource.instances[0].open();
@@ -276,7 +287,10 @@ describe('openItemEventsTransport', () => {
 
   it('falls back to a direct EventSource when the SharedWorker constructor throws', () => {
     FakeSharedWorker.shouldThrow = true;
-    setGlobals({ EventSource: FakeEventSource, SharedWorker: FakeSharedWorker });
+    setGlobals({
+      EventSource: FakeEventSource,
+      SharedWorker: FakeSharedWorker,
+    });
 
     openItemEventsTransport('/events', {
       onFrame: jest.fn(),
@@ -287,7 +301,10 @@ describe('openItemEventsTransport', () => {
   });
 
   it('falls back to a direct EventSource when the worker script fails to load', () => {
-    setGlobals({ EventSource: FakeEventSource, SharedWorker: FakeSharedWorker });
+    setGlobals({
+      EventSource: FakeEventSource,
+      SharedWorker: FakeSharedWorker,
+    });
     const onFrame = jest.fn();
     const onStatus = jest.fn();
 

@@ -86,7 +86,8 @@ beforeAll(() => {
       /* noop */
     }
   }
-  global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+  global.ResizeObserver =
+    ResizeObserverStub as unknown as typeof ResizeObserver;
 
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
@@ -161,7 +162,10 @@ describe('ItemList', () => {
   it('dedupes rows that share an id across a page boundary', () => {
     setHook({
       data: {
-        pages: [{ data: [row('a'), row('dup')] }, { data: [row('dup'), row('b')] }],
+        pages: [
+          { data: [row('a'), row('dup')] },
+          { data: [row('dup'), row('b')] },
+        ],
       },
     });
     renderList();

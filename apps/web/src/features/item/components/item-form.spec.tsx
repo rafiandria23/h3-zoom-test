@@ -41,7 +41,8 @@ beforeAll(() => {
       /* noop */
     }
   }
-  global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+  global.ResizeObserver =
+    ResizeObserverStub as unknown as typeof ResizeObserver;
 
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
@@ -97,8 +98,12 @@ describe('ItemForm', () => {
   it('marks Label and Value as required', () => {
     renderForm();
 
-    expect(screen.getByText('Label').closest('div')?.textContent).toContain('*');
-    expect(screen.getByText('Value').closest('div')?.textContent).toContain('*');
+    expect(screen.getByText('Label').closest('div')?.textContent).toContain(
+      '*',
+    );
+    expect(screen.getByText('Value').closest('div')?.textContent).toContain(
+      '*',
+    );
   });
 
   it('blocks submission and shows a required error when Label is empty', async () => {

@@ -1,7 +1,10 @@
 import { of } from 'rxjs';
 
 import { FileService, type StoredFile } from './file.service';
-import { MultipartInterceptor, type MultipartRequest } from './file.interceptor';
+import {
+  MultipartInterceptor,
+  type MultipartRequest,
+} from './file.interceptor';
 
 type Part =
   | { type: 'field'; fieldname: string; value: unknown }

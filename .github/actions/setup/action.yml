@@ -1,0 +1,56 @@
+name: Setup workspace
+description: >
+  Node.js (current LTS) with Corepack-managed Yarn, restored Yarn and Nx
+  caches, and an immutable workspace install.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js (LTS)
+      uses: actions/setup-node@v7.1.0
+      with:
+        node-version: lts/*
+        check-latest: true
+        # Yarn only exists after Corepack is enabled below, so the Yarn cache
+        # is restored manually instead of via setup-node's built-in caching.
+        package-manager-cache: false
+
+    # Node >= 25 no longer bundles Corepack. Install it into the setup-node
+    # toolcache (runner-owned, no sudo) so its shims land first on PATH, then
+    # let it resolve Yarn from package.json#packageManager.
+    # Corepack has no dependencies, so an exact version fully pins the install;
+    # it can't live in yarn.lock because Yarn doesn't exist until it runs.
+    - name: Enable Corepack # zizmor: ignore[adhoc-packages]
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo 'COREPACK_ENABLE_DOWNLOAD_PROMPT=0' >> "$GITHUB_ENV"
+        export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+        npm install --global --no-audit --no-fund corepack@0.36.0
+        corepack enable
+        echo "node $(node --version) · corepack $(corepack --version) · yarn $(yarn --version)"
+
+    - name: Locate Yarn cache
+      id: yarn-cache
+      shell: bash
+      run: echo "dir=$(yarn config get cacheFolder)" >> "$GITHUB_OUTPUT"
+
+    - name: Restore Yarn cache
+      uses: actions/cache@v6.1.0
+      with:
+        path: ${{ steps.yarn-cache.outputs.dir }}
+        key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: yarn-${{ runner.os }}-
+
+    # Nx Cloud is disabled (nx.json neverConnectToCloud), so persist the local
+    # task cache per job; unchanged projects replay instead of re-running.
+    - name: Restore Nx cache
+      uses: actions/cache@v6.1.0
+      with:
+        path: .nx/cache
+        key: nx-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+        restore-keys: nx-${{ runner.os }}-${{ github.job }}-
+
+    - name: Install dependencies
+      shell: bash
+      run: yarn install --immutable

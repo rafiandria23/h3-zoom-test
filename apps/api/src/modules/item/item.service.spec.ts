@@ -1,4 +1,8 @@
-import { CommonService, SSE_EVENT_REPLAY_PAGE_SIZE, SortDirection } from '../common';
+import {
+  CommonService,
+  SSE_EVENT_REPLAY_PAGE_SIZE,
+  SortDirection,
+} from '../common';
 import { EventType } from '../../generated/prisma/enums';
 import type { Event, Item } from '../../generated/prisma/client';
 import type { DatabaseService } from '../database/database.service';
@@ -172,14 +176,12 @@ describe('ItemService.listItems', () => {
   });
 
   it('reports the returned page count and applied sort in metadata', async () => {
-    const findMany = jest
-      .fn()
-      .mockResolvedValueOnce([
-        makeItem('a', {
-          events: [{ type: EventType.item_processed, payload: { score: 42 } }],
-        } as unknown as Partial<Item>),
-        makeItem('b'),
-      ]);
+    const findMany = jest.fn().mockResolvedValueOnce([
+      makeItem('a', {
+        events: [{ type: EventType.item_processed, payload: { score: 42 } }],
+      } as unknown as Partial<Item>),
+      makeItem('b'),
+    ]);
     const service = buildService(findMany);
 
     const result = await service.listItems(query({ page: 2, size: 2 }));

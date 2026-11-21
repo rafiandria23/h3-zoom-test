@@ -134,9 +134,7 @@ export const ItemList: FC = () => {
               item={item}
               open={openId === item.id}
               onToggle={() =>
-                setOpenId((current) =>
-                  current === item.id ? null : item.id,
-                )
+                setOpenId((current) => (current === item.id ? null : item.id))
               }
             />
           )}

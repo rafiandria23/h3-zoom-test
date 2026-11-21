@@ -40,13 +40,13 @@ docker/
 
 ## Prerequisites
 
-| Tool | Version | Notes |
-| --- | --- | --- |
-| Node.js | 24.x | Matches the Docker images (`node:24-alpine`). |
-| Yarn | 4.18.0 | Managed by Corepack: `corepack enable`. Do not use npm. |
-| Docker + Compose v2 | recent | Required for the compose stack; also the easiest way to get PostgreSQL + Redis for a direct run. |
-| PostgreSQL | 18 | Only if you run the database natively instead of via Docker. |
-| Redis | 7 | Only if you run Redis natively instead of via Docker. |
+| Tool                | Version | Notes                                                                                            |
+| ------------------- | ------- | ------------------------------------------------------------------------------------------------ |
+| Node.js             | 24.x    | Matches the Docker images (`node:24-alpine`).                                                    |
+| Yarn                | 4.18.0  | Managed by Corepack: `corepack enable`. Do not use npm.                                          |
+| Docker + Compose v2 | recent  | Required for the compose stack; also the easiest way to get PostgreSQL + Redis for a direct run. |
+| PostgreSQL          | 18      | Only if you run the database natively instead of via Docker.                                     |
+| Redis               | 7       | Only if you run Redis natively instead of via Docker.                                            |
 
 This repo pins Yarn via `packageManager`. After `corepack enable`, the correct Yarn
 version is selected automatically inside the project.
@@ -63,7 +63,7 @@ Precedence — first file to define a variable wins, and the real environment al
 overrides files:
 
 1. `.env.<mode>.local`
-2. `.env.local`  *(skipped when `NODE_ENV` is `test` / `testing`)*
+2. `.env.local` _(skipped when `NODE_ENV` is `test` / `testing`)_
 3. `.env.<mode>`
 4. `.env`
 
@@ -80,15 +80,15 @@ cp .env.example .env
 
 ### Variables
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `NODE_ENV` | `development` | `development` also enables Swagger UI at the API root. |
-| `LOG_LEVEL` | `info` | Fastify logger level. |
-| `API_HOST` / `API_PORT` | `127.0.0.1` / `3000` | Address the API binds to. |
-| `WEB_SCHEME` / `WEB_HOST` / `WEB_PORT` | `http` / `127.0.0.1` / `4000` | Browser origin of the web app. The API uses this to build its CORS allowlist. |
-| `DB_HOST` / `DB_PORT` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` | `127.0.0.1` / `5432` / `rafiandria23` / `rafiandria23` / `h3_zoom_test` | PostgreSQL connection. |
-| `REDIS_HOST` / `REDIS_PORT` / `REDIS_USER` / `REDIS_PASSWORD` / `REDIS_DB_INDEX` | `127.0.0.1` / `6379` / `rafiandria23` / `rafiandria23` / `0` | Redis connection for BullMQ. |
-| `NEXT_PUBLIC_API_URL` | `http://127.0.0.1:3000` | **Compose build arg only.** Inlined into the web bundle at build time, so it must be the *browser‑facing* API origin — never an internal compose hostname. |
+| Variable                                                                         | Default                                                                 | Purpose                                                                                                                                                    |
+| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`                                                                       | `development`                                                           | `development` also enables Swagger UI at the API root.                                                                                                     |
+| `LOG_LEVEL`                                                                      | `info`                                                                  | Fastify logger level.                                                                                                                                      |
+| `API_HOST` / `API_PORT`                                                          | `127.0.0.1` / `3000`                                                    | Address the API binds to.                                                                                                                                  |
+| `WEB_SCHEME` / `WEB_HOST` / `WEB_PORT`                                           | `http` / `127.0.0.1` / `4000`                                           | Browser origin of the web app. The API uses this to build its CORS allowlist.                                                                              |
+| `DB_HOST` / `DB_PORT` / `DB_USER` / `DB_PASSWORD` / `DB_NAME`                    | `127.0.0.1` / `5432` / `rafiandria23` / `rafiandria23` / `h3_zoom_test` | PostgreSQL connection.                                                                                                                                     |
+| `REDIS_HOST` / `REDIS_PORT` / `REDIS_USER` / `REDIS_PASSWORD` / `REDIS_DB_INDEX` | `127.0.0.1` / `6379` / `rafiandria23` / `rafiandria23` / `0`            | Redis connection for BullMQ.                                                                                                                               |
+| `NEXT_PUBLIC_API_URL`                                                            | `http://127.0.0.1:3000`                                                 | **Compose build arg only.** Inlined into the web bundle at build time, so it must be the _browser‑facing_ API origin — never an internal compose hostname. |
 
 ---
 
@@ -181,13 +181,13 @@ docker compose stop postgresql redis
 
 The stack in [`docker-compose.yml`](docker-compose.yml) builds and runs everything.
 
-| Service | Image / build | Role |
-| --- | --- | --- |
-| `postgresql` | `postgres:18-alpine` | Database. Data in `./docker/volumes/postgresql`. |
-| `redis` | `redis:7-alpine` | BullMQ backing store. Data in `./docker/volumes/redis`. |
-| `migrate` | build `apps/api/Dockerfile` (target `build`) | One‑shot `prisma db push`, then exits. `api` waits for it to finish. |
-| `api` | build `apps/api/Dockerfile` | NestJS API + BullMQ worker. Uploads persisted to `./docker/volumes/uploads`. |
-| `web` | build `apps/web/Dockerfile` | Next.js standalone server. |
+| Service      | Image / build                                | Role                                                                         |
+| ------------ | -------------------------------------------- | ---------------------------------------------------------------------------- |
+| `postgresql` | `postgres:18-alpine`                         | Database. Data in `./docker/volumes/postgresql`.                             |
+| `redis`      | `redis:7-alpine`                             | BullMQ backing store. Data in `./docker/volumes/redis`.                      |
+| `migrate`    | build `apps/api/Dockerfile` (target `build`) | One‑shot `prisma db push`, then exits. `api` waits for it to finish.         |
+| `api`        | build `apps/api/Dockerfile`                  | NestJS API + BullMQ worker. Uploads persisted to `./docker/volumes/uploads`. |
+| `web`        | build `apps/web/Dockerfile`                  | Next.js standalone server.                                                   |
 
 Startup order is enforced with health checks and `depends_on`:
 `postgresql` + `redis` healthy → `migrate` completes → `api` healthy → `web`.
@@ -269,23 +269,23 @@ docker compose up --build migrate
 
 ## Ports & URLs
 
-| What | URL | Env knob |
-| --- | --- | --- |
-| Web app | <http://127.0.0.1:4000> | `WEB_PORT` |
-| API base | <http://127.0.0.1:3000/api/v1> | `API_PORT` |
-| API health | <http://127.0.0.1:3000/api/v1> | — |
-| Swagger UI (dev only) | <http://127.0.0.1:3000/> | — |
-| PostgreSQL | 127.0.0.1:5432 | `DB_PORT` |
-| Redis | 127.0.0.1:6379 | `REDIS_PORT` |
+| What                  | URL                            | Env knob     |
+| --------------------- | ------------------------------ | ------------ |
+| Web app               | <http://127.0.0.1:4000>        | `WEB_PORT`   |
+| API base              | <http://127.0.0.1:3000/api/v1> | `API_PORT`   |
+| API health            | <http://127.0.0.1:3000/api/v1> | —            |
+| Swagger UI (dev only) | <http://127.0.0.1:3000/>       | —            |
+| PostgreSQL            | 127.0.0.1:5432                 | `DB_PORT`    |
+| Redis                 | 127.0.0.1:6379                 | `REDIS_PORT` |
 
 ### API surface
 
-| Method | Path | Description |
-| --- | --- | --- |
-| `GET` | `/api/v1` | Health / timestamp. |
-| `POST` | `/api/v1/items` | Submit an item (`application/json` or `multipart/form-data` for files). Persists it, emits `item_submitted`, enqueues it on the `items` queue. |
-| `GET` | `/api/v1/items` | Paginated list with processing status (`?page=&size=&sort_by=&sort_direction=`). |
-| `GET` | `/api/v1/items/events` | SSE stream of `item_submitted` / `item_processed` events. Resumable via `Last-Event-ID`. |
+| Method | Path                   | Description                                                                                                                                    |
+| ------ | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET`  | `/api/v1`              | Health / timestamp.                                                                                                                            |
+| `POST` | `/api/v1/items`        | Submit an item (`application/json` or `multipart/form-data` for files). Persists it, emits `item_submitted`, enqueues it on the `items` queue. |
+| `GET`  | `/api/v1/items`        | Paginated list with processing status (`?page=&size=&sort_by=&sort_direction=`).                                                               |
+| `GET`  | `/api/v1/items/events` | SSE stream of `item_submitted` / `item_processed` events. Resumable via `Last-Event-ID`.                                                       |
 
 ---
 

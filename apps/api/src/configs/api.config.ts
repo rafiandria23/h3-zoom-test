@@ -15,7 +15,10 @@ export const apiConfig = registerAs('api', () => {
 
   const webHost = _.get(process, 'env.WEB_HOST', '127.0.0.1');
 
-  const webPort = Number.parseInt(_.get(process, 'env.WEB_PORT', '4000'), RADIX);
+  const webPort = Number.parseInt(
+    _.get(process, 'env.WEB_PORT', '4000'),
+    RADIX,
+  );
   if (Number.isNaN(webPort)) {
     throw new TypeError('Invalid WEB_PORT');
   }

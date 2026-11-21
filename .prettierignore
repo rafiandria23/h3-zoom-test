@@ -4,3 +4,8 @@
 /.nx/cache
 /.nx/workspace-data
 .nx/self-healing
+
+# Tool-generated — rewritten by their generators, which would undo formatting
+/graphify-out
+/apps/web/next-env.d.ts
+/apps/api/openapi.json

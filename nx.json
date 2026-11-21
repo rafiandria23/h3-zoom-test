@@ -74,6 +74,11 @@
   "neverConnectToCloud": true,
   "analytics": false,
   "targetDefaults": {
+    "lint": {
+      "options": {
+        "max-warnings": 0
+      }
+    },
     "test": {
       "dependsOn": ["^build"]
     }

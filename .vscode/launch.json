@@ -6,19 +6,13 @@
       "request": "launch",
       "name": "Debug @rafiandria23/h3-zoom-test-api with Nx",
       "runtimeExecutable": "yarn",
-      "runtimeArgs": [
-        "nx",
-        "serve",
-        "@rafiandria23/h3-zoom-test-api"
-      ],
+      "runtimeArgs": ["nx", "serve", "@rafiandria23/h3-zoom-test-api"],
       "env": {
         "NODE_OPTIONS": "--inspect=9229"
       },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/apps/api/dist/**/*.(m|c|)js",

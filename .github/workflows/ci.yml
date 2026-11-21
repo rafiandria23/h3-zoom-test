@@ -26,6 +26,9 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
+      # yarn.config.cjs: e.g. nx and every @nx/* plugin on one version.
+      - name: Workspace constraints
+        run: yarn constraints
       # prisma.config.ts needs DB_* even for `generate`; the generated client
       # (apps/api/src/generated) is gitignored but imported by the api.
       - run: cp .env.example .env

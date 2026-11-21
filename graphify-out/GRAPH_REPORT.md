@@ -1,4 +1,4 @@
-# Graph Report - h3-zoom-test  (2026-11-21)
+# Graph Report - h3-zoom-test  (2026-11-22)
 
 ## Corpus Check
 - 129 files · ~26,733 words
@@ -11,7 +11,7 @@
 - Token cost: 69,498 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6a6f8f0e`
+- Built from commit: `c63ad735`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -245,7 +245,7 @@ Nodes (18): environment, API_HOST, API_PORT, DB_HOST, DB_NAME, DB_PASSWORD, DB_P
 
 ### Community 23 - "api/package.json"
 Cohesion: 0.07
-Nodes (39): dependencies, bullmq@^6.3.0, class-validator@^0.15.1, dotenv-expand@^12.0.3, @fastify/multipart@^10.1.1, @fastify/static@^8.3.0, ioredis@^5.11.1, lodash@^4.18.1 (+31 more)
+Nodes (39): dependencies, bullmq@^6.3.0, class-validator@^0.15.1, dotenv-expand@^12.0.3, @fastify/multipart@^10.1.1, @fastify/static@^10.1.11, ioredis@^5.11.1, lodash@^4.18.1 (+31 more)
 
 ### Community 24 - "Nx Workspace Config"
 Cohesion: 0.10
